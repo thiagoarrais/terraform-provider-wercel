@@ -18,7 +18,8 @@ func Provider() *schema.Provider {
 			},
 		},
 		ResourcesMap: map[string]*schema.Resource{
-			"wercel_project": resourceProject(),
+			"wercel_project":              resourceProject(),
+			"wercel_environment_variable": resourceEnvvar(),
 		},
 		DataSourcesMap:       map[string]*schema.Resource{},
 		ConfigureContextFunc: providerConfigure,
