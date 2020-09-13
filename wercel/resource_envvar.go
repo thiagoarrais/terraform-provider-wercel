@@ -113,6 +113,19 @@ func resourceEnvvarCreate(ctx context.Context, d *schema.ResourceData, m interfa
 	}
 	defer resp.Body.Close()
 
+	if resp.StatusCode != 200 {
+		if len(resp.Header["Content-Type"]) != 1 || resp.Header["Content-Type"][0] != "application/json; charset=utf-8" {
+			return diag.Errorf("unknown error: %d %s", resp.StatusCode, resp.Status)
+		}
+		var errResponse map[string]interface{}
+		err = json.NewDecoder(resp.Body).Decode(&errResponse)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+		errMessage := errResponse["error"].(map[string]interface{})["message"].(string)
+		return diag.Errorf(errMessage)
+	}
+
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		return diag.FromErr(err)
@@ -149,6 +162,19 @@ func resourceEnvvarCreate(ctx context.Context, d *schema.ResourceData, m interfa
 		return diag.FromErr(err)
 	}
 	defer resp.Body.Close()
+
+	if resp.StatusCode != 200 {
+		if len(resp.Header["Content-Type"]) != 1 || resp.Header["Content-Type"][0] != "application/json; charset=utf-8" {
+			return diag.Errorf("unknown error: %d %s", resp.StatusCode, resp.Status)
+		}
+		var errResponse map[string]interface{}
+		err = json.NewDecoder(resp.Body).Decode(&errResponse)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+		errMessage := errResponse["error"].(map[string]interface{})["message"].(string)
+		return diag.Errorf(errMessage)
+	}
 
 	d.SetId(fmt.Sprintf("%s/%s", projectID, key))
 	d.Set("secret_name", secretName)
@@ -189,6 +215,18 @@ func resourceEnvvarDelete(ctx context.Context, d *schema.ResourceData, m interfa
 		return diag.FromErr(err)
 	}
 	defer resp.Body.Close()
+	if resp.StatusCode != 200 {
+		if len(resp.Header["Content-Type"]) != 1 || resp.Header["Content-Type"][0] != "application/json; charset=utf-8" {
+			return diag.Errorf("unknown error: %d %s", resp.StatusCode, resp.Status)
+		}
+		var errResponse map[string]interface{}
+		err = json.NewDecoder(resp.Body).Decode(&errResponse)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+		errMessage := errResponse["error"].(map[string]interface{})["message"].(string)
+		return diag.Errorf(errMessage)
+	}
 
 	req, err = http.NewRequest(
 		"DELETE",
@@ -205,6 +243,8 @@ func resourceEnvvarDelete(ctx context.Context, d *schema.ResourceData, m interfa
 		return diag.FromErr(err)
 	}
 	defer resp.Body.Close()
+
+	// deliberately ignoring resp.StatusCode here because the Secret is a secondary resource
 
 	d.SetId("")
 
@@ -236,8 +276,24 @@ func resourceEnvvarDiff(ctx context.Context, d *schema.ResourceDiff, m interface
 		}
 		defer resp.Body.Close()
 
+		if resp.StatusCode != 200 {
+			if len(resp.Header["Content-Type"]) != 1 || resp.Header["Content-Type"][0] != "application/json; charset=utf-8" {
+				return fmt.Errorf("unknown error: %d %s", resp.StatusCode, resp.Status)
+			}
+			var errResponse map[string]interface{}
+			err = json.NewDecoder(resp.Body).Decode(&errResponse)
+			if err != nil {
+				return err
+			}
+			errMessage := errResponse["error"].(map[string]interface{})["message"].(string)
+			return fmt.Errorf(errMessage)
+		}
+
 		result := map[string]interface{}{}
-		json.NewDecoder(resp.Body).Decode(&result)
+		err = json.NewDecoder(resp.Body).Decode(&result)
+		if err != nil {
+			return err
+		}
 
 		for _, envvarIntf := range result["envs"].([]interface{}) {
 			envvar := envvarIntf.(map[string]interface{})
