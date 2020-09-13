@@ -1,21 +1,8 @@
-# Terraform Provider Hashicups
+# Terraform Provider Wercel
 
-Run the following command to build the provider
+This is an unofficial Terraform Provider for [Vercel](https://vercel.com)
 
-```shell
-go build -o terraform-provider-hashicups
-```
+Supported resources:
 
-## Test sample configuration
-
-First, build and install the provider.
-
-```shell
-make install
-```
-
-Then, run the following command to initialize the workspace and apply the sample configuration.
-
-```shell
-terraform init && terraform apply
-```
+- `wercel_project` (import only)
+- `wercel_environment_variable`
