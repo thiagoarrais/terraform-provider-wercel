@@ -1,13 +1,16 @@
 package wercel
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"regexp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 func resourceProject() *schema.Resource {
@@ -17,6 +20,7 @@ func resourceProject() *schema.Resource {
 		},
 		CreateContext: resourceProjectCreate,
 		ReadContext:   resourceProjectRead,
+		UpdateContext: resourceProjectUpdate,
 		DeleteContext: resourceProjectDelete,
 		Schema: map[string]*schema.Schema{
 			"name": {
@@ -24,12 +28,140 @@ func resourceProject() *schema.Resource {
 				Required: true,
 				ForceNew: true,
 			},
+			"repo": {
+				Type:     schema.TypeList,
+				Optional: true, // (?)
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"type": {
+							Type:             schema.TypeString,
+							Required:         true,
+							ValidateDiagFunc: toValidateDiagFunc("type", validation.StringInSlice([]string{"gitlab"}, true)),
+						},
+						"project_url": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+					},
+				},
+			},
 		},
 	}
 }
 
 func resourceProjectCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+	client := &http.Client{}
+	token := m.(string)
+
 	var diags diag.Diagnostics
+
+	name := d.Get("name").(string)
+	projectURL := d.Get("repo").([]interface{})[0].(map[string]interface{})["project_url"].(string)
+
+	// TODO: what about gitlab subgroups?
+	re, _ := regexp.Compile("([^/]+)/([^/]+)$")
+	matches := re.FindStringSubmatch(projectURL)
+	gitlabNamespace := matches[1]
+	gitlabProjectName := matches[2]
+
+	// TODO: should only run this if can't read project
+	// WARN: undocumented endpoint POST /v6/projects
+	reqBody, err := json.Marshal(map[string]interface{}{
+		"name": name,
+		"gitRepository": map[string]interface{}{
+			"type":       "gitlab",
+			"sourceless": true,
+			"repo":       fmt.Sprintf("%s/%s", gitlabNamespace, gitlabProjectName),
+		},
+	})
+	if err != nil {
+		return diag.FromErr(err)
+	}
+	req, err := http.NewRequest(
+		"POST",
+		fmt.Sprintf("%s/v6/projects", "https://api.vercel.com"),
+		bytes.NewReader(reqBody),
+	)
+	if err != nil {
+		return diag.FromErr(err)
+	}
+	req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", token))
+	req.Header.Add("Content-Type", "application/json; charset=utf-8")
+
+	resp, err := client.Do(req)
+	if err != nil {
+		return diag.FromErr(err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != 200 {
+		if len(resp.Header["Content-Type"]) != 1 || resp.Header["Content-Type"][0] != "application/json; charset=utf-8" {
+			return diag.Errorf("unknown error: %d %s", resp.StatusCode, resp.Status)
+		}
+		var errResponse map[string]interface{}
+		err = json.NewDecoder(resp.Body).Decode(&errResponse)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+		errMessage := errResponse["error"].(map[string]interface{})["message"].(string)
+		return diag.Errorf(errMessage)
+	}
+
+	var createProject map[string]interface{}
+	err = json.NewDecoder(resp.Body).Decode(&createProject)
+	if err != nil {
+		return diag.FromErr(err)
+	}
+	gitSource := createProject["link"].(map[string]interface{})
+	gitSourceProjectID := gitSource["projectId"].(string)
+	gitSourceProductionBranch := gitSource["productionBranch"].(string)
+	// WARN: undocumented endpoint POST /v13/now/deployments
+	reqBody, err = json.Marshal(map[string]interface{}{
+		"name":   name,
+		"target": "production",
+		"source": "import",
+		"gitSource": map[string]interface{}{
+			"type":      "gitlab",
+			"ref":       gitSourceProductionBranch,
+			"projectId": gitSourceProjectID,
+		},
+	})
+	if err != nil {
+		return diag.FromErr(err)
+	}
+	req, err = http.NewRequest(
+		"POST",
+		fmt.Sprintf("%s/v13/now/deployments", "https://api.vercel.com"),
+		bytes.NewReader(reqBody),
+	)
+	if err != nil {
+		return diag.FromErr(err)
+	}
+	req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", token))
+	req.Header.Add("Content-Type", "application/json; charset=utf-8")
+
+	resp, err = client.Do(req)
+	if err != nil {
+		return diag.FromErr(err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != 200 {
+		if len(resp.Header["Content-Type"]) != 1 || resp.Header["Content-Type"][0] != "application/json; charset=utf-8" {
+			return diag.Errorf("unknown error: %d %s", resp.StatusCode, resp.Status)
+		}
+		var errResponse map[string]interface{}
+		err = json.NewDecoder(resp.Body).Decode(&errResponse)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+		errMessage := errResponse["error"].(map[string]interface{})["message"].(string)
+		return diag.Errorf(errMessage)
+	}
+
+	d.SetId(createProject["id"].(string))
+
 	return diags
 }
 
@@ -63,6 +195,11 @@ func resourceProjectRead(ctx context.Context, d *schema.ResourceData, m interfac
 
 	d.SetId(project["id"].(string))
 
+	return diags
+}
+
+func resourceProjectUpdate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+	var diags diag.Diagnostics
 	return diags
 }
 
