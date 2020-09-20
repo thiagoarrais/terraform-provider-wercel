@@ -5,7 +5,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"net/http"
 	"strings"
 
@@ -16,10 +15,10 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
-func toValidateDiagFunc(validate schema.SchemaValidateFunc) schema.SchemaValidateDiagFunc {
+func toValidateDiagFunc(fieldName string, validate schema.SchemaValidateFunc) schema.SchemaValidateDiagFunc {
 	return func(input interface{}, path cty.Path) diag.Diagnostics {
 		var diags diag.Diagnostics
-		_, errs := validate(input, "target")
+		_, errs := validate(input, fieldName)
 		for _, err := range errs {
 			diags = append(diags, diag.Diagnostic{
 				Severity:      diag.Error,
@@ -66,7 +65,7 @@ func resourceEnvvar() *schema.Resource {
 				ForceNew:         true,
 				Default:          "production",
 				DiffSuppressFunc: stringIgnoreCase,
-				ValidateDiagFunc: toValidateDiagFunc(validation.StringInSlice([]string{"development", "preview", "production"}, true)),
+				ValidateDiagFunc: toValidateDiagFunc("target", validation.StringInSlice([]string{"development", "preview", "production"}, true)),
 			},
 			"secret_name": {
 				Type:     schema.TypeString,
@@ -126,12 +125,8 @@ func resourceEnvvarCreate(ctx context.Context, d *schema.ResourceData, m interfa
 		return diag.Errorf(errMessage)
 	}
 
-	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return diag.FromErr(err)
-	}
 	var secret map[string]interface{}
-	err = json.Unmarshal(body, &secret)
+	err = json.NewDecoder(resp.Body).Decode(&secret)
 
 	secretUID := secret["uid"].(string)
 	projectID := d.Get("project_id").(string)

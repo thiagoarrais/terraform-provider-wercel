@@ -51,7 +51,7 @@ func resourceProjectRead(ctx context.Context, d *schema.ResourceData, m interfac
 	}
 	defer resp.Body.Close()
 
-	project := make(map[string]interface{})
+	var project map[string]interface{}
 	err = json.NewDecoder(resp.Body).Decode(&project)
 	if err != nil {
 		return diag.FromErr(err)
