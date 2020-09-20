@@ -193,6 +193,15 @@ func resourceProjectRead(ctx context.Context, d *schema.ResourceData, m interfac
 		return diag.FromErr(err)
 	}
 
+	if project["link"] != nil {
+		projectLink := project["link"].(map[string]interface{})
+		repo := map[string]interface{}{
+			"type":        projectLink["type"],
+			"project_url": projectLink["projectUrl"],
+		}
+		d.Set("repo", []interface{}{repo})
+	}
+
 	d.SetId(project["id"].(string))
 
 	return diags
