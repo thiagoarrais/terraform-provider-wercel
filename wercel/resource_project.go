@@ -349,6 +349,41 @@ func resourceProjectUpdate(ctx context.Context, d *schema.ResourceData, m interf
 }
 
 func resourceProjectDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+	client := &http.Client{}
+	token := m.(string)
+
 	var diags diag.Diagnostics
+
+	req, err := http.NewRequest(
+		"DELETE",
+		fmt.Sprintf("%s/v1/projects/%s", "https://api.vercel.com", d.Id()),
+		nil,
+	)
+	if err != nil {
+		return diag.FromErr(err)
+	}
+	req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", token))
+
+	resp, err := client.Do(req)
+	if err != nil {
+		return diag.FromErr(err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != 204 {
+		if len(resp.Header["Content-Type"]) != 1 || resp.Header["Content-Type"][0] != "application/json; charset=utf-8" {
+			return diag.Errorf("unknown error: %d %s", resp.StatusCode, resp.Status)
+		}
+		var errResponse map[string]interface{}
+		err = json.NewDecoder(resp.Body).Decode(&errResponse)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+		errMessage := errResponse["error"].(map[string]interface{})["message"].(string)
+		return diag.Errorf(errMessage)
+	}
+
+	d.SetId("")
+
 	return diags
 }
