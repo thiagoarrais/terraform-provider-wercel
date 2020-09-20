@@ -209,6 +209,142 @@ func resourceProjectRead(ctx context.Context, d *schema.ResourceData, m interfac
 
 func resourceProjectUpdate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	var diags diag.Diagnostics
+
+	if d.HasChange("repo") {
+		client := &http.Client{}
+		token := m.(string)
+
+		// WARN: undocumented endpoint DELETE /v4/projects/:project_id/link
+		req, err := http.NewRequest(
+			"DELETE",
+			fmt.Sprintf("%s/v4/projects/%s/link", "https://api.vercel.com", d.Id()),
+			nil,
+		)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+		req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", token))
+
+		resp, err := client.Do(req)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+		defer resp.Body.Close()
+
+		if resp.StatusCode != 200 {
+			if len(resp.Header["Content-Type"]) != 1 || resp.Header["Content-Type"][0] != "application/json; charset=utf-8" {
+				return diag.Errorf("unknown error: %d %s", resp.StatusCode, resp.Status)
+			}
+			var errResponse map[string]interface{}
+			err = json.NewDecoder(resp.Body).Decode(&errResponse)
+			if err != nil {
+				return diag.FromErr(err)
+			}
+			errMessage := errResponse["error"].(map[string]interface{})["message"].(string)
+			return diag.Errorf(errMessage)
+		}
+
+		projectURL := d.Get("repo").([]interface{})[0].(map[string]interface{})["project_url"].(string)
+
+		// TODO: what about gitlab subgroups?
+		re, _ := regexp.Compile("([^/]+)/([^/]+)$")
+		matches := re.FindStringSubmatch(projectURL)
+		gitlabNamespace := matches[1]
+		gitlabProjectName := matches[2]
+
+		// WARN: undocumented endpoint POST /v4/projects/:project_id/link
+		reqBody, err := json.Marshal(map[string]interface{}{
+			"type": "gitlab",
+			"repo": fmt.Sprintf("%s/%s", gitlabNamespace, gitlabProjectName),
+		})
+		if err != nil {
+			return diag.FromErr(err)
+		}
+		req, err = http.NewRequest(
+			"POST",
+			fmt.Sprintf("%s/v4/projects/%s/link", "https://api.vercel.com", d.Id()),
+			bytes.NewReader(reqBody),
+		)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+		req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", token))
+		req.Header.Add("Content-Type", "application/json; charset=utf-8")
+
+		resp, err = client.Do(req)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+		defer resp.Body.Close()
+
+		if resp.StatusCode != 200 {
+			if len(resp.Header["Content-Type"]) != 1 || resp.Header["Content-Type"][0] != "application/json; charset=utf-8" {
+				return diag.Errorf("unknown error: %d %s", resp.StatusCode, resp.Status)
+			}
+			var errResponse map[string]interface{}
+			err = json.NewDecoder(resp.Body).Decode(&errResponse)
+			if err != nil {
+				return diag.FromErr(err)
+			}
+			errMessage := errResponse["error"].(map[string]interface{})["message"].(string)
+			return diag.Errorf(errMessage)
+		}
+
+		var linkProject map[string]interface{}
+		err = json.NewDecoder(resp.Body).Decode(&linkProject)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+		gitSource := linkProject["link"].(map[string]interface{})
+		gitSourceProjectID := gitSource["projectId"].(string)
+		gitSourceProductionBranch := gitSource["productionBranch"].(string)
+		name := d.Get("name").(string)
+		// WARN: undocumented endpoint POST /v13/now/deployments
+		reqBody, err = json.Marshal(map[string]interface{}{
+			"name":   name,
+			"target": "production",
+			"source": "import",
+			"gitSource": map[string]interface{}{
+				"type":      "gitlab",
+				"ref":       gitSourceProductionBranch,
+				"projectId": gitSourceProjectID,
+			},
+		})
+		if err != nil {
+			return diag.FromErr(err)
+		}
+		req, err = http.NewRequest(
+			"POST",
+			fmt.Sprintf("%s/v13/now/deployments", "https://api.vercel.com"),
+			bytes.NewReader(reqBody),
+		)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+		req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", token))
+		req.Header.Add("Content-Type", "application/json; charset=utf-8")
+
+		resp, err = client.Do(req)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+		defer resp.Body.Close()
+
+		if resp.StatusCode != 200 {
+			if len(resp.Header["Content-Type"]) != 1 || resp.Header["Content-Type"][0] != "application/json; charset=utf-8" {
+				return diag.Errorf("unknown error: %d %s", resp.StatusCode, resp.Status)
+			}
+			var errResponse map[string]interface{}
+			err = json.NewDecoder(resp.Body).Decode(&errResponse)
+			if err != nil {
+				return diag.FromErr(err)
+			}
+			errMessage := errResponse["error"].(map[string]interface{})["message"].(string)
+			return diag.Errorf(errMessage)
+		}
+
+	}
+
 	return diags
 }
 
