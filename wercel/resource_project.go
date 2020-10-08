@@ -23,6 +23,13 @@ func resourceProject() *schema.Resource {
 		UpdateContext: resourceProjectUpdate,
 		DeleteContext: resourceProjectDelete,
 		Schema: map[string]*schema.Schema{
+			"domains": {
+				Type:     schema.TypeSet,
+				Optional: true,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+			},
 			"name": {
 				Type:     schema.TypeString,
 				Required: true,
@@ -202,6 +209,20 @@ func resourceProjectRead(ctx context.Context, d *schema.ResourceData, m interfac
 		d.Set("repo", []interface{}{repo})
 	}
 
+	if project["alias"] != nil {
+		projectName := project["name"].(string)
+		defaultDomain := projectName + ".vercel.app"
+		projectAliases := project["alias"].([]interface{})
+		domains := []string{}
+		for _, aliasIntf := range projectAliases {
+			alias := aliasIntf.(map[string]interface{})
+			if alias["domain"] != defaultDomain {
+				domains = append(domains, alias["domain"].(string))
+			}
+		}
+		d.Set("domains", domains)
+	}
+
 	d.SetId(project["id"].(string))
 
 	return diags
@@ -209,10 +230,10 @@ func resourceProjectRead(ctx context.Context, d *schema.ResourceData, m interfac
 
 func resourceProjectUpdate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	var diags diag.Diagnostics
+	token := m.(string)
 
 	if d.HasChange("repo") {
 		client := &http.Client{}
-		token := m.(string)
 
 		// WARN: undocumented endpoint DELETE /v4/projects/:project_id/link
 		req, err := http.NewRequest(
@@ -345,7 +366,94 @@ func resourceProjectUpdate(ctx context.Context, d *schema.ResourceData, m interf
 
 	}
 
+	if d.HasChange("domains") {
+		old, new := d.GetChange("domains")
+		err := syncDomains(d.Id(), token, old, new)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
 	return diags
+}
+
+func syncDomains(projectID string, token string, old interface{}, new interface{}) error {
+	oldSet := old.(*schema.Set)
+	newSet := new.(*schema.Set)
+	removedDomains := oldSet.Difference(newSet)
+	addedDomains := newSet.Difference(oldSet)
+
+	client := &http.Client{}
+	for _, removedDomain := range removedDomains.List() {
+		req, err := http.NewRequest(
+			"DELETE",
+			fmt.Sprintf("%s/v1/projects/%s/alias?domain=%s", "https://api.vercel.com", projectID, removedDomain),
+			nil,
+		)
+		if err != nil {
+			return err
+		}
+		req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", token))
+
+		resp, err := client.Do(req)
+		if err != nil {
+			return err
+		}
+		defer resp.Body.Close()
+
+		if resp.StatusCode != 200 {
+			if len(resp.Header["Content-Type"]) != 1 || resp.Header["Content-Type"][0] != "application/json; charset=utf-8" {
+				return fmt.Errorf("unknown error: %d %s", resp.StatusCode, resp.Status)
+			}
+			var errResponse map[string]interface{}
+			err = json.NewDecoder(resp.Body).Decode(&errResponse)
+			if err != nil {
+				return err
+			}
+			errMessage := errResponse["error"].(map[string]interface{})["message"].(string)
+			return fmt.Errorf(errMessage)
+		}
+	}
+
+	for _, addedDomain := range addedDomains.List() {
+		reqBody, err := json.Marshal(map[string]interface{}{
+			"domain": addedDomain,
+		})
+		if err != nil {
+			return err
+		}
+		req, err := http.NewRequest(
+			"POST",
+			fmt.Sprintf("%s/v1/projects/%s/alias", "https://api.vercel.com", projectID),
+			bytes.NewReader(reqBody),
+		)
+		if err != nil {
+			return err
+		}
+		req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", token))
+		req.Header.Add("Content-Type", "application/json; charset=utf-8")
+
+		resp, err := client.Do(req)
+		if err != nil {
+			return err
+		}
+		defer resp.Body.Close()
+
+		if resp.StatusCode != 200 {
+			if len(resp.Header["Content-Type"]) != 1 || resp.Header["Content-Type"][0] != "application/json; charset=utf-8" {
+				return fmt.Errorf("unknown error: %d %s", resp.StatusCode, resp.Status)
+			}
+			var errResponse map[string]interface{}
+			err = json.NewDecoder(resp.Body).Decode(&errResponse)
+			if err != nil {
+				return err
+			}
+			errMessage := errResponse["error"].(map[string]interface{})["message"].(string)
+			return fmt.Errorf(errMessage)
+		}
+	}
+
+	return nil
 }
 
 func resourceProjectDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
