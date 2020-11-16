@@ -1,0 +1,243 @@
+openapi: 3.0.0
+info:
+  title: Vercel API
+  description: Unnofficial OpenAPI description for the Vercel API
+  version: 0.1
+servers:
+  - url: https://api.vercel.com
+    description: Main Vercel API endpoint
+paths:
+  /v1/projects/{id}:
+    get:
+      operationId: getProjectById
+      tags:
+        - Projects
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: "Success"
+          content:
+            application/json:
+              schema: 
+                $ref: "#/components/schemas/Project"
+    delete:
+      operationId: removeProjectById
+      tags:
+        - Projects
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: "Success"
+  /v1/projects/{projectId}/alias:
+    delete:
+      operationId: removeAliasFromProject
+      tags:
+        - Projects
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: domain
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: "Success"
+    post:
+      operationId: addAliasToProject
+      tags:
+        - Projects
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AliasInclusion"
+      responses:
+        '200':
+          description: "Success"
+  /v6/projects:
+    post:
+      operationId: createProject
+      tags:
+        - Projects
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProjectCreation"
+      responses:
+        '200':
+          description: "Success"
+          content:
+            application/json:
+              schema: 
+                $ref: "#/components/schemas/Project"
+        '409':
+          description: Project already exists
+  /v4/projects/{id}/link:
+    delete:
+      operationId: removeLinkByProjectId
+      tags:
+        - Projects
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: "Success"
+          content:
+            application/json:
+              schema: 
+                $ref: "#/components/schemas/Project"
+    post:
+      operationId: createLinkByProjectId
+      tags:
+        - Projects
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GitRepositoryLink"
+      responses:
+        '200':
+          description: "Success"
+          content:
+            application/json:
+              schema: 
+                $ref: "#/components/schemas/Project"
+  /v13/now/deployments:
+    post:
+      operationId: createNewDeployment
+      tags:
+        - Deployments
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DeploymentCreation"
+      responses:
+        '200':
+          description: "Success"
+components:
+  schemas:
+    Project:
+      required:
+        - id
+        - name
+      type: object
+      properties: 
+        id:
+          type: string
+        name:
+          type: string
+        link:
+          type: object
+          required:
+            - type
+          properties:
+            type:
+              type: string
+            projectId:
+              type: string
+            projectName:
+              type: string
+            projectNamespace:
+              type: string
+            projectUrl:
+              type: string
+            productionBranch:
+              type: string
+        alias:
+          type: array
+          items:
+            type: object
+            properties:
+              domain:
+                type: string
+            required:
+              - domain
+    ProjectCreation:
+      required:
+        - name
+      type: object
+      properties:
+        name:
+          type: string
+        gitRepository:
+          $ref: "#/components/schema/GitRepositoryLink"
+    DeploymentCreation:
+      required:
+        - name
+      type: object
+      properties:
+        name:
+          type: string
+        target:
+          type: string
+          enum: [staging, production]
+        source:
+          type: string
+        gitSource:
+          type: object
+          properties:
+            type:
+              type: string
+            ref:
+              type: string
+            projectId:
+              type: string
+    GitRepositoryLink:
+      required:
+        - type
+        - repo
+      type: object
+      properties:
+        type:
+          type: string
+          enum: [github, gitlab, bitbucket]
+        repo:
+          type: string
+        sourceless:
+          type: boolean
+    AliasInclusion:
+      required:
+        - domain
+      type: object
+      properties:
+        domain:
+          type: string
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+security:
+  - bearerAuth: []

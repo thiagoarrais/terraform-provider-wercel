@@ -1,16 +1,15 @@
 package wercel
 
 import (
-	"bytes"
 	"context"
-	"encoding/json"
 	"fmt"
-	"net/http"
 	"regexp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+
+	"github.com/thiagoarrais/terraform-provider-wercel/sdk"
 )
 
 func resourceProject() *schema.Resource {
@@ -58,7 +57,6 @@ func resourceProject() *schema.Resource {
 }
 
 func resourceProjectCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	client := &http.Client{}
 	token := m.(string)
 
 	var diags diag.Diagnostics
@@ -72,158 +70,85 @@ func resourceProjectCreate(ctx context.Context, d *schema.ResourceData, m interf
 	gitlabNamespace := matches[1]
 	gitlabProjectName := matches[2]
 
+	tru := true
+
 	// TODO: should only run this if can't read project
-	// WARN: undocumented endpoint POST /v6/projects
-	reqBody, err := json.Marshal(map[string]interface{}{
-		"name": name,
-		"gitRepository": map[string]interface{}{
-			"type":       "gitlab",
-			"sourceless": true,
-			"repo":       fmt.Sprintf("%s/%s", gitlabNamespace, gitlabProjectName),
-		},
-	})
+	conf := sdk.NewConfiguration()
+	conf.AddDefaultHeader("Authorization", fmt.Sprintf("Bearer %s", token))
+	sdkClient := sdk.NewAPIClient(conf)
+	project, _, err := sdkClient.ProjectsApi.CreateProject(ctx).
+		ProjectCreation(sdk.ProjectCreation{
+			Name: name,
+			GitRepository: &sdk.GitRepositoryLink{
+				Type:       "gitlab",
+				Sourceless: &tru,
+				Repo:       fmt.Sprintf("%s/%s", gitlabNamespace, gitlabProjectName),
+			},
+		}).
+		Execute()
 	if err != nil {
 		return diag.FromErr(err)
-	}
-	req, err := http.NewRequest(
-		"POST",
-		fmt.Sprintf("%s/v6/projects", "https://api.vercel.com"),
-		bytes.NewReader(reqBody),
-	)
-	if err != nil {
-		return diag.FromErr(err)
-	}
-	req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", token))
-	req.Header.Add("Content-Type", "application/json; charset=utf-8")
-
-	resp, err := client.Do(req)
-	if err != nil {
-		return diag.FromErr(err)
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != 200 {
-		if len(resp.Header["Content-Type"]) != 1 || resp.Header["Content-Type"][0] != "application/json; charset=utf-8" {
-			return diag.Errorf("unknown error: %d %s", resp.StatusCode, resp.Status)
-		}
-		var errResponse map[string]interface{}
-		err = json.NewDecoder(resp.Body).Decode(&errResponse)
-		if err != nil {
-			return diag.FromErr(err)
-		}
-		errMessage := errResponse["error"].(map[string]interface{})["message"].(string)
-		return diag.Errorf(errMessage)
 	}
 
-	var createProject map[string]interface{}
-	err = json.NewDecoder(resp.Body).Decode(&createProject)
-	if err != nil {
-		return diag.FromErr(err)
-	}
-	gitSource := createProject["link"].(map[string]interface{})
-	gitSourceProjectID := gitSource["projectId"].(string)
-	gitSourceProductionBranch := gitSource["productionBranch"].(string)
+	projectLink := project.GetLink()
+	gitSource := sdk.NewDeploymentCreationGitSource()
+	gitSource.SetType("gitlab")
+	gitSource.SetRef(projectLink.GetProductionBranch())
+	gitSource.SetProjectId(projectLink.GetProjectId())
+	deploymentCreation := sdk.NewDeploymentCreation(name)
+	deploymentCreation.SetTarget("production")
+	deploymentCreation.SetSource("import")
+	deploymentCreation.SetGitSource(*gitSource)
 	// WARN: undocumented endpoint POST /v13/now/deployments
-	reqBody, err = json.Marshal(map[string]interface{}{
-		"name":   name,
-		"target": "production",
-		"source": "import",
-		"gitSource": map[string]interface{}{
-			"type":      "gitlab",
-			"ref":       gitSourceProductionBranch,
-			"projectId": gitSourceProjectID,
-		},
-	})
+	_, err = sdkClient.DeploymentsApi.CreateNewDeployment(ctx).
+		DeploymentCreation(*deploymentCreation).
+		Execute()
 	if err != nil {
 		return diag.FromErr(err)
 	}
-	req, err = http.NewRequest(
-		"POST",
-		fmt.Sprintf("%s/v13/now/deployments", "https://api.vercel.com"),
-		bytes.NewReader(reqBody),
-	)
-	if err != nil {
-		return diag.FromErr(err)
-	}
-	req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", token))
-	req.Header.Add("Content-Type", "application/json; charset=utf-8")
 
-	resp, err = client.Do(req)
-	if err != nil {
-		return diag.FromErr(err)
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != 200 {
-		if len(resp.Header["Content-Type"]) != 1 || resp.Header["Content-Type"][0] != "application/json; charset=utf-8" {
-			return diag.Errorf("unknown error: %d %s", resp.StatusCode, resp.Status)
-		}
-		var errResponse map[string]interface{}
-		err = json.NewDecoder(resp.Body).Decode(&errResponse)
-		if err != nil {
-			return diag.FromErr(err)
-		}
-		errMessage := errResponse["error"].(map[string]interface{})["message"].(string)
-		return diag.Errorf(errMessage)
-	}
-
-	d.SetId(createProject["id"].(string))
+	d.SetId(project.GetId())
 
 	return diags
 }
 
 func resourceProjectRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	client := &http.Client{}
 	token := m.(string)
 
 	var diags diag.Diagnostics
 
-	req, err := http.NewRequest("GET", fmt.Sprintf("%s/v1/projects/%s", "https://api.vercel.com", d.Id()), nil)
-	if err != nil {
-		return diag.FromErr(err)
-	}
-	req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", token))
-
-	resp, err := client.Do(req)
-	if err != nil {
-		return diag.FromErr(err)
-	}
-	defer resp.Body.Close()
-
-	var project map[string]interface{}
-	err = json.NewDecoder(resp.Body).Decode(&project)
+	conf := sdk.NewConfiguration()
+	conf.AddDefaultHeader("Authorization", fmt.Sprintf("Bearer %s", token))
+	client := sdk.NewAPIClient(conf)
+	project, _, err := client.ProjectsApi.GetProjectById(ctx, d.Id()).Execute()
 	if err != nil {
 		return diag.FromErr(err)
 	}
 
-	if err := d.Set("name", project["name"].(string)); err != nil {
+	if err := d.Set("name", project.GetName()); err != nil {
 		return diag.FromErr(err)
 	}
 
-	if project["link"] != nil {
-		projectLink := project["link"].(map[string]interface{})
+	if link, ok := project.GetLinkOk(); ok {
 		repo := map[string]interface{}{
-			"type":        projectLink["type"],
-			"project_url": projectLink["projectUrl"],
+			"type":        link.GetType(),
+			"project_url": link.GetProjectUrl(),
 		}
 		d.Set("repo", []interface{}{repo})
 	}
 
-	if project["alias"] != nil {
-		projectName := project["name"].(string)
-		defaultDomain := projectName + ".vercel.app"
-		projectAliases := project["alias"].([]interface{})
+	if aliases, ok := project.GetAliasOk(); ok {
+		defaultDomain := project.GetName() + ".vercel.app"
 		domains := []string{}
-		for _, aliasIntf := range projectAliases {
-			alias := aliasIntf.(map[string]interface{})
-			if alias["domain"] != defaultDomain {
-				domains = append(domains, alias["domain"].(string))
+		for _, alias := range *aliases {
+			if alias.GetDomain() != defaultDomain {
+				domains = append(domains, alias.GetDomain())
 			}
 		}
 		d.Set("domains", domains)
 	}
 
-	d.SetId(project["id"].(string))
+	d.SetId(project.GetId())
 
 	return diags
 }
@@ -232,37 +157,14 @@ func resourceProjectUpdate(ctx context.Context, d *schema.ResourceData, m interf
 	var diags diag.Diagnostics
 	token := m.(string)
 
+	conf := sdk.NewConfiguration()
+	conf.AddDefaultHeader("Authorization", fmt.Sprintf("Bearer %s", token))
+	sdkClient := sdk.NewAPIClient(conf)
 	if d.HasChange("repo") {
-		client := &http.Client{}
-
 		// WARN: undocumented endpoint DELETE /v4/projects/:project_id/link
-		req, err := http.NewRequest(
-			"DELETE",
-			fmt.Sprintf("%s/v4/projects/%s/link", "https://api.vercel.com", d.Id()),
-			nil,
-		)
+		_, _, err := sdkClient.ProjectsApi.RemoveLinkByProjectId(ctx, d.Id()).Execute()
 		if err != nil {
 			return diag.FromErr(err)
-		}
-		req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", token))
-
-		resp, err := client.Do(req)
-		if err != nil {
-			return diag.FromErr(err)
-		}
-		defer resp.Body.Close()
-
-		if resp.StatusCode != 200 {
-			if len(resp.Header["Content-Type"]) != 1 || resp.Header["Content-Type"][0] != "application/json; charset=utf-8" {
-				return diag.Errorf("unknown error: %d %s", resp.StatusCode, resp.Status)
-			}
-			var errResponse map[string]interface{}
-			err = json.NewDecoder(resp.Body).Decode(&errResponse)
-			if err != nil {
-				return diag.FromErr(err)
-			}
-			errMessage := errResponse["error"].(map[string]interface{})["message"].(string)
-			return diag.Errorf(errMessage)
 		}
 
 		projectURL := d.Get("repo").([]interface{})[0].(map[string]interface{})["project_url"].(string)
@@ -274,101 +176,39 @@ func resourceProjectUpdate(ctx context.Context, d *schema.ResourceData, m interf
 		gitlabProjectName := matches[2]
 
 		// WARN: undocumented endpoint POST /v4/projects/:project_id/link
-		reqBody, err := json.Marshal(map[string]interface{}{
-			"type": "gitlab",
-			"repo": fmt.Sprintf("%s/%s", gitlabNamespace, gitlabProjectName),
-		})
+		linkProject, _, err := sdkClient.ProjectsApi.CreateLinkByProjectId(ctx, d.Id()).
+			GitRepositoryLink(sdk.GitRepositoryLink{
+				Type: "gitlab",
+				Repo: fmt.Sprintf("%s/%s", gitlabNamespace, gitlabProjectName),
+			}).Execute()
 		if err != nil {
 			return diag.FromErr(err)
-		}
-		req, err = http.NewRequest(
-			"POST",
-			fmt.Sprintf("%s/v4/projects/%s/link", "https://api.vercel.com", d.Id()),
-			bytes.NewReader(reqBody),
-		)
-		if err != nil {
-			return diag.FromErr(err)
-		}
-		req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", token))
-		req.Header.Add("Content-Type", "application/json; charset=utf-8")
-
-		resp, err = client.Do(req)
-		if err != nil {
-			return diag.FromErr(err)
-		}
-		defer resp.Body.Close()
-
-		if resp.StatusCode != 200 {
-			if len(resp.Header["Content-Type"]) != 1 || resp.Header["Content-Type"][0] != "application/json; charset=utf-8" {
-				return diag.Errorf("unknown error: %d %s", resp.StatusCode, resp.Status)
-			}
-			var errResponse map[string]interface{}
-			err = json.NewDecoder(resp.Body).Decode(&errResponse)
-			if err != nil {
-				return diag.FromErr(err)
-			}
-			errMessage := errResponse["error"].(map[string]interface{})["message"].(string)
-			return diag.Errorf(errMessage)
 		}
 
-		var linkProject map[string]interface{}
-		err = json.NewDecoder(resp.Body).Decode(&linkProject)
-		if err != nil {
-			return diag.FromErr(err)
-		}
-		gitSource := linkProject["link"].(map[string]interface{})
-		gitSourceProjectID := gitSource["projectId"].(string)
-		gitSourceProductionBranch := gitSource["productionBranch"].(string)
+		gitSource := linkProject.GetLink()
+		gitSourceProjectID := gitSource.GetProjectId()
+		gitSourceProductionBranch := gitSource.GetProductionBranch()
 		name := d.Get("name").(string)
 		// WARN: undocumented endpoint POST /v13/now/deployments
-		reqBody, err = json.Marshal(map[string]interface{}{
-			"name":   name,
-			"target": "production",
-			"source": "import",
-			"gitSource": map[string]interface{}{
-				"type":      "gitlab",
-				"ref":       gitSourceProductionBranch,
-				"projectId": gitSourceProjectID,
-			},
-		})
+		gitRepositoryLink := sdk.NewDeploymentCreationGitSource()
+		gitRepositoryLink.SetType("gitlab")
+		gitRepositoryLink.SetRef(gitSourceProductionBranch)
+		gitRepositoryLink.SetProjectId(gitSourceProjectID)
+		deploymentCreation := sdk.NewDeploymentCreation(name)
+		deploymentCreation.SetTarget("production")
+		deploymentCreation.SetSource("import")
+		deploymentCreation.SetGitSource(*gitRepositoryLink)
+		_, err = sdkClient.DeploymentsApi.CreateNewDeployment(ctx).
+			DeploymentCreation(*deploymentCreation).
+			Execute()
 		if err != nil {
 			return diag.FromErr(err)
 		}
-		req, err = http.NewRequest(
-			"POST",
-			fmt.Sprintf("%s/v13/now/deployments", "https://api.vercel.com"),
-			bytes.NewReader(reqBody),
-		)
-		if err != nil {
-			return diag.FromErr(err)
-		}
-		req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", token))
-		req.Header.Add("Content-Type", "application/json; charset=utf-8")
-
-		resp, err = client.Do(req)
-		if err != nil {
-			return diag.FromErr(err)
-		}
-		defer resp.Body.Close()
-
-		if resp.StatusCode != 200 {
-			if len(resp.Header["Content-Type"]) != 1 || resp.Header["Content-Type"][0] != "application/json; charset=utf-8" {
-				return diag.Errorf("unknown error: %d %s", resp.StatusCode, resp.Status)
-			}
-			var errResponse map[string]interface{}
-			err = json.NewDecoder(resp.Body).Decode(&errResponse)
-			if err != nil {
-				return diag.FromErr(err)
-			}
-			errMessage := errResponse["error"].(map[string]interface{})["message"].(string)
-			return diag.Errorf(errMessage)
-		}
-
 	}
 
 	if d.HasChange("domains") {
 		old, new := d.GetChange("domains")
-		err := syncDomains(d.Id(), token, old, new)
+		err := syncDomains(ctx, d.Id(), token, old, new)
 		if err != nil {
 			return diag.FromErr(err)
 		}
@@ -377,79 +217,30 @@ func resourceProjectUpdate(ctx context.Context, d *schema.ResourceData, m interf
 	return diags
 }
 
-func syncDomains(projectID string, token string, old interface{}, new interface{}) error {
+func syncDomains(ctx context.Context, projectID string, token string, old interface{}, new interface{}) error {
 	oldSet := old.(*schema.Set)
 	newSet := new.(*schema.Set)
 	removedDomains := oldSet.Difference(newSet)
 	addedDomains := newSet.Difference(oldSet)
 
-	client := &http.Client{}
+	conf := sdk.NewConfiguration()
+	conf.AddDefaultHeader("Authorization", fmt.Sprintf("Bearer %s", token))
+	sdkClient := sdk.NewAPIClient(conf)
 	for _, removedDomain := range removedDomains.List() {
-		req, err := http.NewRequest(
-			"DELETE",
-			fmt.Sprintf("%s/v1/projects/%s/alias?domain=%s", "https://api.vercel.com", projectID, removedDomain),
-			nil,
-		)
+		_, err := sdkClient.ProjectsApi.RemoveAliasFromProject(ctx, projectID).Domain(removedDomain.(string)).Execute()
 		if err != nil {
 			return err
-		}
-		req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", token))
-
-		resp, err := client.Do(req)
-		if err != nil {
-			return err
-		}
-		defer resp.Body.Close()
-
-		if resp.StatusCode != 200 {
-			if len(resp.Header["Content-Type"]) != 1 || resp.Header["Content-Type"][0] != "application/json; charset=utf-8" {
-				return fmt.Errorf("unknown error: %d %s", resp.StatusCode, resp.Status)
-			}
-			var errResponse map[string]interface{}
-			err = json.NewDecoder(resp.Body).Decode(&errResponse)
-			if err != nil {
-				return err
-			}
-			errMessage := errResponse["error"].(map[string]interface{})["message"].(string)
-			return fmt.Errorf(errMessage)
 		}
 	}
 
 	for _, addedDomain := range addedDomains.List() {
-		reqBody, err := json.Marshal(map[string]interface{}{
-			"domain": addedDomain,
-		})
+		_, err := sdkClient.ProjectsApi.AddAliasToProject(ctx, projectID).
+			AliasInclusion(sdk.AliasInclusion{
+				Domain: addedDomain.(string),
+			}).
+			Execute()
 		if err != nil {
 			return err
-		}
-		req, err := http.NewRequest(
-			"POST",
-			fmt.Sprintf("%s/v1/projects/%s/alias", "https://api.vercel.com", projectID),
-			bytes.NewReader(reqBody),
-		)
-		if err != nil {
-			return err
-		}
-		req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", token))
-		req.Header.Add("Content-Type", "application/json; charset=utf-8")
-
-		resp, err := client.Do(req)
-		if err != nil {
-			return err
-		}
-		defer resp.Body.Close()
-
-		if resp.StatusCode != 200 {
-			if len(resp.Header["Content-Type"]) != 1 || resp.Header["Content-Type"][0] != "application/json; charset=utf-8" {
-				return fmt.Errorf("unknown error: %d %s", resp.StatusCode, resp.Status)
-			}
-			var errResponse map[string]interface{}
-			err = json.NewDecoder(resp.Body).Decode(&errResponse)
-			if err != nil {
-				return err
-			}
-			errMessage := errResponse["error"].(map[string]interface{})["message"].(string)
-			return fmt.Errorf(errMessage)
 		}
 	}
 
@@ -457,38 +248,17 @@ func syncDomains(projectID string, token string, old interface{}, new interface{
 }
 
 func resourceProjectDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	client := &http.Client{}
 	token := m.(string)
 
 	var diags diag.Diagnostics
 
-	req, err := http.NewRequest(
-		"DELETE",
-		fmt.Sprintf("%s/v1/projects/%s", "https://api.vercel.com", d.Id()),
-		nil,
-	)
+	conf := sdk.NewConfiguration()
+	conf.AddDefaultHeader("Authorization", fmt.Sprintf("Bearer %s", token))
+	sdkClient := sdk.NewAPIClient(conf)
+	_, err := sdkClient.ProjectsApi.RemoveProjectById(ctx, d.Id()).
+		Execute()
 	if err != nil {
 		return diag.FromErr(err)
-	}
-	req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", token))
-
-	resp, err := client.Do(req)
-	if err != nil {
-		return diag.FromErr(err)
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != 204 {
-		if len(resp.Header["Content-Type"]) != 1 || resp.Header["Content-Type"][0] != "application/json; charset=utf-8" {
-			return diag.Errorf("unknown error: %d %s", resp.StatusCode, resp.Status)
-		}
-		var errResponse map[string]interface{}
-		err = json.NewDecoder(resp.Body).Decode(&errResponse)
-		if err != nil {
-			return diag.FromErr(err)
-		}
-		errMessage := errResponse["error"].(map[string]interface{})["message"].(string)
-		return diag.Errorf(errMessage)
 	}
 
 	d.SetId("")
