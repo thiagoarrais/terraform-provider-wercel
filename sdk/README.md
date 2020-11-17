@@ -86,6 +86,8 @@ Class | Method | HTTP request | Description
 *ProjectsApi* | [**RemoveAliasFromProject**](docs/ProjectsApi.md#removealiasfromproject) | **Delete** /v1/projects/{projectId}/alias | 
 *ProjectsApi* | [**RemoveLinkByProjectId**](docs/ProjectsApi.md#removelinkbyprojectid) | **Delete** /v4/projects/{id}/link | 
 *ProjectsApi* | [**RemoveProjectById**](docs/ProjectsApi.md#removeprojectbyid) | **Delete** /v1/projects/{id} | 
+*SecretsApi* | [**CreateNewSecret**](docs/SecretsApi.md#createnewsecret) | **Post** /v2/now/secrets | 
+*SecretsApi* | [**RemoveSecret**](docs/SecretsApi.md#removesecret) | **Delete** /v2/now/secrets/{name} | 
 
 
 ## Documentation For Models
@@ -98,6 +100,9 @@ Class | Method | HTTP request | Description
  - [ProjectAlias](docs/ProjectAlias.md)
  - [ProjectCreation](docs/ProjectCreation.md)
  - [ProjectLink](docs/ProjectLink.md)
+ - [Secret](docs/Secret.md)
+ - [SecretCreation](docs/SecretCreation.md)
+ - [SecretValue](docs/SecretValue.md)
 
 
 ## Documentation For Authorization

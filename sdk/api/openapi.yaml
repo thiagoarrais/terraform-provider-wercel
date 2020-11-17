@@ -163,6 +163,43 @@ paths:
           description: Success
       tags:
       - Deployments
+  /v2/now/secrets:
+    post:
+      operationId: createNewSecret
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SecretCreation'
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Secret'
+          description: Success
+      tags:
+      - Secrets
+  /v2/now/secrets/{name}:
+    delete:
+      operationId: removeSecret
+      parameters:
+      - explode: false
+        in: path
+        name: name
+        required: true
+        schema:
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Secret'
+          description: Success
+      tags:
+      - Secrets
 components:
   schemas:
     Project:
@@ -262,6 +299,46 @@ components:
       required:
       - domain
       type: object
+    SecretCreation:
+      example:
+        name: name
+        value: value
+      properties:
+        name:
+          type: string
+        value:
+          type: string
+      required:
+      - name
+      - value
+      type: object
+    Secret:
+      example:
+        uid: uid
+        created: 2000-01-23
+        name: name
+        userId: userId
+        value:
+          data:
+          - 0
+          - 0
+          type: type
+      properties:
+        uid:
+          type: string
+        name:
+          type: string
+        created:
+          format: date
+          type: string
+        userId:
+          type: string
+        value:
+          $ref: '#/components/schemas/Secret_value'
+      required:
+      - name
+      - uid
+      type: object
     Project_link:
       example:
         projectUrl: projectUrl
@@ -307,6 +384,20 @@ components:
           type: string
         projectId:
           type: string
+      type: object
+    Secret_value:
+      example:
+        data:
+        - 0
+        - 0
+        type: type
+      properties:
+        type:
+          type: string
+        data:
+          items:
+            type: integer
+          type: array
       type: object
   securitySchemes:
     bearerAuth:

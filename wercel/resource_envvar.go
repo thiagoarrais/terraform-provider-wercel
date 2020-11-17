@@ -13,6 +13,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+	"github.com/thiagoarrais/terraform-provider-wercel/sdk"
 )
 
 func toValidateDiagFunc(fieldName string, validate schema.SchemaValidateFunc) schema.SchemaValidateDiagFunc {
@@ -88,52 +89,25 @@ func resourceEnvvarCreate(ctx context.Context, d *schema.ResourceData, m interfa
 	value := d.Get("value").(string)
 	secretName := uuid.New().String()
 
-	reqBody, err := json.Marshal(map[string]string{
-		"name":  secretName,
-		"value": value,
-	})
+	conf := sdk.NewConfiguration()
+	conf.AddDefaultHeader("Authorization", fmt.Sprintf("Bearer %s", token))
+	sdkClient := sdk.NewAPIClient(conf)
+	secret, _, err := sdkClient.SecretsApi.CreateNewSecret(ctx).
+		SecretCreation(sdk.SecretCreation{
+			Name:  secretName,
+			Value: value,
+		}).
+		Execute()
 	if err != nil {
 		return diag.FromErr(err)
 	}
-	req, err := http.NewRequest(
-		"POST",
-		fmt.Sprintf("%s/v2/now/secrets", "https://api.vercel.com"),
-		bytes.NewReader(reqBody),
-	)
-	if err != nil {
-		return diag.FromErr(err)
-	}
-	req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", token))
-	req.Header.Add("Content-Type", "application/json; charset=utf-8")
 
-	resp, err := client.Do(req)
-	if err != nil {
-		return diag.FromErr(err)
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != 200 {
-		if len(resp.Header["Content-Type"]) != 1 || resp.Header["Content-Type"][0] != "application/json; charset=utf-8" {
-			return diag.Errorf("unknown error: %d %s", resp.StatusCode, resp.Status)
-		}
-		var errResponse map[string]interface{}
-		err = json.NewDecoder(resp.Body).Decode(&errResponse)
-		if err != nil {
-			return diag.FromErr(err)
-		}
-		errMessage := errResponse["error"].(map[string]interface{})["message"].(string)
-		return diag.Errorf(errMessage)
-	}
-
-	var secret map[string]interface{}
-	err = json.NewDecoder(resp.Body).Decode(&secret)
-
-	secretUID := secret["uid"].(string)
+	secretUID := secret.GetUid()
 	projectID := d.Get("project_id").(string)
 	key := d.Get("key").(string)
 	target := d.Get("target").(string)
 
-	reqBody, err = json.Marshal(map[string]string{
+	reqBody, err := json.Marshal(map[string]string{
 		"key":    key,
 		"value":  secretUID,
 		"target": strings.ToLower(target),
@@ -141,7 +115,7 @@ func resourceEnvvarCreate(ctx context.Context, d *schema.ResourceData, m interfa
 	if err != nil {
 		return diag.FromErr(err)
 	}
-	req, err = http.NewRequest(
+	req, err := http.NewRequest(
 		"POST",
 		fmt.Sprintf("%s/v4/projects/%s/env", "https://api.vercel.com", projectID),
 		bytes.NewReader(reqBody),
@@ -152,7 +126,7 @@ func resourceEnvvarCreate(ctx context.Context, d *schema.ResourceData, m interfa
 	req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", token))
 	req.Header.Add("Content-Type", "application/json; charset=utf-8")
 
-	resp, err = client.Do(req)
+	resp, err := client.Do(req)
 	if err != nil {
 		return diag.FromErr(err)
 	}
@@ -223,21 +197,13 @@ func resourceEnvvarDelete(ctx context.Context, d *schema.ResourceData, m interfa
 		return diag.Errorf(errMessage)
 	}
 
-	req, err = http.NewRequest(
-		"DELETE",
-		fmt.Sprintf("%s/v2/now/secrets/%s", "https://api.vercel.com", secretName),
-		nil,
-	)
+	conf := sdk.NewConfiguration()
+	conf.AddDefaultHeader("Authorization", fmt.Sprintf("Bearer %s", token))
+	sdkClient := sdk.NewAPIClient(conf)
+	_, _, err = sdkClient.SecretsApi.RemoveSecret(ctx, secretName).Execute()
 	if err != nil {
 		return diag.FromErr(err)
 	}
-	req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", token))
-
-	resp, err = client.Do(req)
-	if err != nil {
-		return diag.FromErr(err)
-	}
-	defer resp.Body.Close()
 
 	// deliberately ignoring resp.StatusCode here because the Secret is a secondary resource
 

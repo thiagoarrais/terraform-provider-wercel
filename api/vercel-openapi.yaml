@@ -147,6 +147,41 @@ paths:
       responses:
         '200':
           description: "Success"
+  /v2/now/secrets:
+    post:
+      operationId: createNewSecret
+      tags:
+        - Secrets
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SecretCreation"
+      responses:
+        '200':
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Secret"
+  /v2/now/secrets/{name}:
+    delete:
+      operationId: removeSecret
+      tags:
+        - Secrets
+      parameters:
+        - name: name
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Secret"
 components:
   schemas:
     Project:
@@ -235,6 +270,40 @@ components:
       properties:
         domain:
           type: string
+    SecretCreation:
+      required:
+        - name
+        - value
+      type: object
+      properties:
+        name:
+          type: string
+        value:
+          type: string
+    Secret:
+      required:
+        - uid
+        - name
+      type: object
+      properties:
+        uid:
+          type: string
+        name:
+          type: string
+        created:
+          type: string
+          format: date
+        userId:
+          type: string
+        value:
+          type: object
+          properties:
+            type:
+              type: string
+            data:
+              type: array
+              items:
+                type: integer
   securitySchemes:
     bearerAuth:
       type: http

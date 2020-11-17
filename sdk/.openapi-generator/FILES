@@ -4,6 +4,7 @@ README.md
 api/openapi.yaml
 api_deployments.go
 api_projects.go
+api_secrets.go
 client.go
 configuration.go
 docs/AliasInclusion.md
@@ -16,6 +17,10 @@ docs/ProjectAlias.md
 docs/ProjectCreation.md
 docs/ProjectLink.md
 docs/ProjectsApi.md
+docs/Secret.md
+docs/SecretCreation.md
+docs/SecretValue.md
+docs/SecretsApi.md
 git_push.sh
 go.mod
 go.sum
@@ -27,5 +32,8 @@ model_project.go
 model_project_alias.go
 model_project_creation.go
 model_project_link.go
+model_secret.go
+model_secret_creation.go
+model_secret_value.go
 response.go
 utils.go
