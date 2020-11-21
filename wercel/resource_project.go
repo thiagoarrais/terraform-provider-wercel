@@ -99,7 +99,6 @@ func resourceProjectCreate(ctx context.Context, d *schema.ResourceData, m interf
 	deploymentCreation.SetTarget("production")
 	deploymentCreation.SetSource("import")
 	deploymentCreation.SetGitSource(*gitSource)
-	// WARN: undocumented endpoint POST /v13/now/deployments
 	_, err = sdkClient.DeploymentsApi.CreateNewDeployment(ctx).
 		DeploymentCreation(*deploymentCreation).
 		Execute()
@@ -161,7 +160,6 @@ func resourceProjectUpdate(ctx context.Context, d *schema.ResourceData, m interf
 	conf.AddDefaultHeader("Authorization", fmt.Sprintf("Bearer %s", token))
 	sdkClient := sdk.NewAPIClient(conf)
 	if d.HasChange("repo") {
-		// WARN: undocumented endpoint DELETE /v4/projects/:project_id/link
 		_, _, err := sdkClient.ProjectsApi.RemoveLinkByProjectId(ctx, d.Id()).Execute()
 		if err != nil {
 			return diagFromSDKErr(err)
@@ -175,7 +173,6 @@ func resourceProjectUpdate(ctx context.Context, d *schema.ResourceData, m interf
 		gitlabNamespace := matches[1]
 		gitlabProjectName := matches[2]
 
-		// WARN: undocumented endpoint POST /v4/projects/:project_id/link
 		linkProject, _, err := sdkClient.ProjectsApi.CreateLinkByProjectId(ctx, d.Id()).
 			GitRepositoryLink(sdk.GitRepositoryLink{
 				Type: "gitlab",
@@ -189,7 +186,6 @@ func resourceProjectUpdate(ctx context.Context, d *schema.ResourceData, m interf
 		gitSourceProjectID := gitSource.GetProjectId()
 		gitSourceProductionBranch := gitSource.GetProductionBranch()
 		name := d.Get("name").(string)
-		// WARN: undocumented endpoint POST /v13/now/deployments
 		gitRepositoryLink := sdk.NewDeploymentCreationGitSource()
 		gitRepositoryLink.SetType("gitlab")
 		gitRepositoryLink.SetRef(gitSourceProductionBranch)

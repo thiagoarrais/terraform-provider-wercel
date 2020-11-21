@@ -109,6 +109,7 @@ paths:
         default:
           $ref: "#/components/responses/Error"
   /v4/projects/{id}/link:
+    # WARN: undocumented operation 
     delete:
       operationId: removeLinkByProjectId
       tags:
@@ -128,6 +129,7 @@ paths:
                 $ref: "#/components/schemas/Project"
         default:
           $ref: "#/components/responses/Error"
+    # WARN: undocumented operation 
     post:
       operationId: createLinkByProjectId
       tags:
@@ -228,6 +230,7 @@ paths:
         default:
           $ref: "#/components/responses/Error"
   /v13/now/deployments:
+    # WARN: undocumented operation
     post:
       operationId: createNewDeployment
       tags:
