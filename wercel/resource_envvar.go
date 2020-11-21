@@ -2,9 +2,7 @@ package wercel
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
-	"net/http"
 	"strings"
 
 	"github.com/google/uuid"
@@ -131,7 +129,6 @@ func resourceEnvvarRead(ctx context.Context, d *schema.ResourceData, m interface
 }
 
 func resourceEnvvarDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	client := &http.Client{}
 	token := m.(string)
 
 	var diags diag.Diagnostics
@@ -141,37 +138,14 @@ func resourceEnvvarDelete(ctx context.Context, d *schema.ResourceData, m interfa
 	target := d.Get("target").(string)
 	secretName := d.Get("secret_name").(string)
 
-	req, err := http.NewRequest(
-		"DELETE",
-		fmt.Sprintf("%s/v4/projects/%s/env/%s?target=%s", "https://api.vercel.com", projectID, key, target),
-		nil,
-	)
-	if err != nil {
-		return diag.FromErr(err)
-	}
-	req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", token))
-
-	resp, err := client.Do(req)
-	if err != nil {
-		return diag.FromErr(err)
-	}
-	defer resp.Body.Close()
-	if resp.StatusCode != 200 {
-		if len(resp.Header["Content-Type"]) != 1 || resp.Header["Content-Type"][0] != "application/json; charset=utf-8" {
-			return diag.Errorf("unknown error: %d %s", resp.StatusCode, resp.Status)
-		}
-		var errResponse map[string]interface{}
-		err = json.NewDecoder(resp.Body).Decode(&errResponse)
-		if err != nil {
-			return diag.FromErr(err)
-		}
-		errMessage := errResponse["error"].(map[string]interface{})["message"].(string)
-		return diag.Errorf(errMessage)
-	}
-
 	conf := sdk.NewConfiguration()
 	conf.AddDefaultHeader("Authorization", fmt.Sprintf("Bearer %s", token))
 	sdkClient := sdk.NewAPIClient(conf)
+	_, _, err := sdkClient.ProjectsApi.DeleteEnvironmentVariable(ctx, projectID, key).Target(target).Execute()
+	if err != nil {
+		return diag.FromErr(err)
+	}
+
 	_, _, err = sdkClient.SecretsApi.RemoveSecret(ctx, secretName).Execute()
 	if err != nil {
 		return diag.FromErr(err)

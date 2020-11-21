@@ -8,6 +8,7 @@ Method | HTTP request | Description
 [**CreateLinkByProjectId**](ProjectsApi.md#CreateLinkByProjectId) | **Post** /v4/projects/{id}/link | 
 [**CreateProject**](ProjectsApi.md#CreateProject) | **Post** /v6/projects | 
 [**CreateProjectEnvironmentVariable**](ProjectsApi.md#CreateProjectEnvironmentVariable) | **Post** /v6/projects/{id}/env | 
+[**DeleteEnvironmentVariable**](ProjectsApi.md#DeleteEnvironmentVariable) | **Delete** /v4/projects/{projectId}/env/{key} | 
 [**GetProjectById**](ProjectsApi.md#GetProjectById) | **Get** /v1/projects/{id} | 
 [**GetProjectEnvironmentVariables**](ProjectsApi.md#GetProjectEnvironmentVariables) | **Get** /v6/projects/{id}/env | 
 [**RemoveAliasFromProject**](ProjectsApi.md#RemoveAliasFromProject) | **Delete** /v1/projects/{projectId}/alias | 
@@ -281,6 +282,79 @@ Name | Type | Description  | Notes
 ### HTTP request headers
 
 - **Content-Type**: application/json
+- **Accept**: application/json
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints)
+[[Back to Model list]](../README.md#documentation-for-models)
+[[Back to README]](../README.md)
+
+
+## DeleteEnvironmentVariable
+
+> EnvironmentVariable DeleteEnvironmentVariable(ctx, projectId, key).Target(target).Execute()
+
+
+
+### Example
+
+```go
+package main
+
+import (
+    "context"
+    "fmt"
+    "os"
+    openapiclient "./openapi"
+)
+
+func main() {
+    projectId := "projectId_example" // string | 
+    key := "key_example" // string | 
+    target := "target_example" // string | 
+
+    configuration := openapiclient.NewConfiguration()
+    api_client := openapiclient.NewAPIClient(configuration)
+    resp, r, err := api_client.ProjectsApi.DeleteEnvironmentVariable(context.Background(), projectId, key).Target(target).Execute()
+    if err != nil {
+        fmt.Fprintf(os.Stderr, "Error when calling `ProjectsApi.DeleteEnvironmentVariable``: %v\n", err)
+        fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
+    }
+    // response from `DeleteEnvironmentVariable`: EnvironmentVariable
+    fmt.Fprintf(os.Stdout, "Response from `ProjectsApi.DeleteEnvironmentVariable`: %v\n", resp)
+}
+```
+
+### Path Parameters
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+**ctx** | **context.Context** | context for authentication, logging, cancellation, deadlines, tracing, etc.
+**projectId** | **string** |  | 
+**key** | **string** |  | 
+
+### Other Parameters
+
+Other parameters are passed through a pointer to a apiDeleteEnvironmentVariableRequest struct via the builder pattern
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+
+
+ **target** | **string** |  | 
+
+### Return type
+
+[**EnvironmentVariable**](EnvironmentVariable.md)
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+- **Content-Type**: Not defined
 - **Accept**: application/json
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints)

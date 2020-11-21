@@ -194,6 +194,40 @@ paths:
           description: Success
       tags:
       - Projects
+  /v4/projects/{projectId}/env/{key}:
+    delete:
+      operationId: deleteEnvironmentVariable
+      parameters:
+      - explode: false
+        in: path
+        name: projectId
+        required: true
+        schema:
+          type: string
+        style: simple
+      - explode: false
+        in: path
+        name: key
+        required: true
+        schema:
+          type: string
+        style: simple
+      - explode: true
+        in: query
+        name: target
+        required: true
+        schema:
+          type: string
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvironmentVariable'
+          description: Success
+      tags:
+      - Projects
   /v13/now/deployments:
     post:
       operationId: createNewDeployment

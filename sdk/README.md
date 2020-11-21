@@ -83,6 +83,7 @@ Class | Method | HTTP request | Description
 *ProjectsApi* | [**CreateLinkByProjectId**](docs/ProjectsApi.md#createlinkbyprojectid) | **Post** /v4/projects/{id}/link | 
 *ProjectsApi* | [**CreateProject**](docs/ProjectsApi.md#createproject) | **Post** /v6/projects | 
 *ProjectsApi* | [**CreateProjectEnvironmentVariable**](docs/ProjectsApi.md#createprojectenvironmentvariable) | **Post** /v6/projects/{id}/env | 
+*ProjectsApi* | [**DeleteEnvironmentVariable**](docs/ProjectsApi.md#deleteenvironmentvariable) | **Delete** /v4/projects/{projectId}/env/{key} | 
 *ProjectsApi* | [**GetProjectById**](docs/ProjectsApi.md#getprojectbyid) | **Get** /v1/projects/{id} | 
 *ProjectsApi* | [**GetProjectEnvironmentVariables**](docs/ProjectsApi.md#getprojectenvironmentvariables) | **Get** /v6/projects/{id}/env | 
 *ProjectsApi* | [**RemoveAliasFromProject**](docs/ProjectsApi.md#removealiasfromproject) | **Delete** /v1/projects/{projectId}/alias | 

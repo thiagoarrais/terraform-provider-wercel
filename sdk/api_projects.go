@@ -455,6 +455,123 @@ func (a *ProjectsApiService) CreateProjectEnvironmentVariableExecute(r ApiCreate
 	return localVarReturnValue, localVarHTTPResponse, nil
 }
 
+type ApiDeleteEnvironmentVariableRequest struct {
+	ctx        _context.Context
+	ApiService *ProjectsApiService
+	projectId  string
+	key        string
+	target     *string
+}
+
+func (r ApiDeleteEnvironmentVariableRequest) Target(target string) ApiDeleteEnvironmentVariableRequest {
+	r.target = &target
+	return r
+}
+
+func (r ApiDeleteEnvironmentVariableRequest) Execute() (EnvironmentVariable, *_nethttp.Response, error) {
+	return r.ApiService.DeleteEnvironmentVariableExecute(r)
+}
+
+/*
+ * DeleteEnvironmentVariable Method for DeleteEnvironmentVariable
+ * @param ctx _context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+ * @param projectId
+ * @param key
+ * @return ApiDeleteEnvironmentVariableRequest
+ */
+func (a *ProjectsApiService) DeleteEnvironmentVariable(ctx _context.Context, projectId string, key string) ApiDeleteEnvironmentVariableRequest {
+	return ApiDeleteEnvironmentVariableRequest{
+		ApiService: a,
+		ctx:        ctx,
+		projectId:  projectId,
+		key:        key,
+	}
+}
+
+/*
+ * Execute executes the request
+ * @return EnvironmentVariable
+ */
+func (a *ProjectsApiService) DeleteEnvironmentVariableExecute(r ApiDeleteEnvironmentVariableRequest) (EnvironmentVariable, *_nethttp.Response, error) {
+	var (
+		localVarHTTPMethod   = _nethttp.MethodDelete
+		localVarPostBody     interface{}
+		localVarFormFileName string
+		localVarFileName     string
+		localVarFileBytes    []byte
+		localVarReturnValue  EnvironmentVariable
+	)
+
+	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "ProjectsApiService.DeleteEnvironmentVariable")
+	if err != nil {
+		return localVarReturnValue, nil, GenericOpenAPIError{error: err.Error()}
+	}
+
+	localVarPath := localBasePath + "/v4/projects/{projectId}/env/{key}"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectId"+"}", _neturl.PathEscape(parameterToString(r.projectId, "")), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"key"+"}", _neturl.PathEscape(parameterToString(r.key, "")), -1)
+
+	localVarHeaderParams := make(map[string]string)
+	localVarQueryParams := _neturl.Values{}
+	localVarFormParams := _neturl.Values{}
+	if r.target == nil {
+		return localVarReturnValue, nil, reportError("target is required and must be specified")
+	}
+
+	localVarQueryParams.Add("target", parameterToString(*r.target, ""))
+	// to determine the Content-Type header
+	localVarHTTPContentTypes := []string{}
+
+	// set Content-Type header
+	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
+	if localVarHTTPContentType != "" {
+		localVarHeaderParams["Content-Type"] = localVarHTTPContentType
+	}
+
+	// to determine the Accept header
+	localVarHTTPHeaderAccepts := []string{"application/json"}
+
+	// set Accept header
+	localVarHTTPHeaderAccept := selectHeaderAccept(localVarHTTPHeaderAccepts)
+	if localVarHTTPHeaderAccept != "" {
+		localVarHeaderParams["Accept"] = localVarHTTPHeaderAccept
+	}
+	req, err := a.client.prepareRequest(r.ctx, localVarPath, localVarHTTPMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFormFileName, localVarFileName, localVarFileBytes)
+	if err != nil {
+		return localVarReturnValue, nil, err
+	}
+
+	localVarHTTPResponse, err := a.client.callAPI(req)
+	if err != nil || localVarHTTPResponse == nil {
+		return localVarReturnValue, localVarHTTPResponse, err
+	}
+
+	localVarBody, err := _ioutil.ReadAll(localVarHTTPResponse.Body)
+	localVarHTTPResponse.Body.Close()
+	if err != nil {
+		return localVarReturnValue, localVarHTTPResponse, err
+	}
+
+	if localVarHTTPResponse.StatusCode >= 300 {
+		newErr := GenericOpenAPIError{
+			body:  localVarBody,
+			error: localVarHTTPResponse.Status,
+		}
+		return localVarReturnValue, localVarHTTPResponse, newErr
+	}
+
+	err = a.client.decode(&localVarReturnValue, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
+	if err != nil {
+		newErr := GenericOpenAPIError{
+			body:  localVarBody,
+			error: err.Error(),
+		}
+		return localVarReturnValue, localVarHTTPResponse, newErr
+	}
+
+	return localVarReturnValue, localVarHTTPResponse, nil
+}
+
 type ApiGetProjectByIdRequest struct {
 	ctx        _context.Context
 	ApiService *ProjectsApiService
