@@ -86,6 +86,7 @@ Class | Method | HTTP request | Description
 *ProjectsApi* | [**DeleteEnvironmentVariable**](docs/ProjectsApi.md#deleteenvironmentvariable) | **Delete** /v4/projects/{projectId}/env/{key} | 
 *ProjectsApi* | [**GetProjectById**](docs/ProjectsApi.md#getprojectbyid) | **Get** /v1/projects/{id} | 
 *ProjectsApi* | [**GetProjectEnvironmentVariables**](docs/ProjectsApi.md#getprojectenvironmentvariables) | **Get** /v6/projects/{id}/env | 
+*ProjectsApi* | [**GetProjects**](docs/ProjectsApi.md#getprojects) | **Get** /v4/projects | 
 *ProjectsApi* | [**RemoveAliasFromProject**](docs/ProjectsApi.md#removealiasfromproject) | **Delete** /v1/projects/{projectId}/alias | 
 *ProjectsApi* | [**RemoveLinkByProjectId**](docs/ProjectsApi.md#removelinkbyprojectid) | **Delete** /v4/projects/{id}/link | 
 *ProjectsApi* | [**RemoveProjectById**](docs/ProjectsApi.md#removeprojectbyid) | **Delete** /v1/projects/{id} | 
@@ -105,6 +106,7 @@ Class | Method | HTTP request | Description
  - [ErrorResponse](docs/ErrorResponse.md)
  - [GitRepositoryLink](docs/GitRepositoryLink.md)
  - [InlineResponse200](docs/InlineResponse200.md)
+ - [InlineResponse2001](docs/InlineResponse2001.md)
  - [Project](docs/Project.md)
  - [ProjectAlias](docs/ProjectAlias.md)
  - [ProjectCreation](docs/ProjectCreation.md)

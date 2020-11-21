@@ -16,7 +16,7 @@ import (
 
 // InlineResponse200 struct for InlineResponse200
 type InlineResponse200 struct {
-	Envs *[]EnvironmentVariable `json:"envs,omitempty"`
+	Projects *[]Project `json:"projects,omitempty"`
 }
 
 // NewInlineResponse200 instantiates a new InlineResponse200 object
@@ -36,42 +36,42 @@ func NewInlineResponse200WithDefaults() *InlineResponse200 {
 	return &this
 }
 
-// GetEnvs returns the Envs field value if set, zero value otherwise.
-func (o *InlineResponse200) GetEnvs() []EnvironmentVariable {
-	if o == nil || o.Envs == nil {
-		var ret []EnvironmentVariable
+// GetProjects returns the Projects field value if set, zero value otherwise.
+func (o *InlineResponse200) GetProjects() []Project {
+	if o == nil || o.Projects == nil {
+		var ret []Project
 		return ret
 	}
-	return *o.Envs
+	return *o.Projects
 }
 
-// GetEnvsOk returns a tuple with the Envs field value if set, nil otherwise
+// GetProjectsOk returns a tuple with the Projects field value if set, nil otherwise
 // and a boolean to check if the value has been set.
-func (o *InlineResponse200) GetEnvsOk() (*[]EnvironmentVariable, bool) {
-	if o == nil || o.Envs == nil {
+func (o *InlineResponse200) GetProjectsOk() (*[]Project, bool) {
+	if o == nil || o.Projects == nil {
 		return nil, false
 	}
-	return o.Envs, true
+	return o.Projects, true
 }
 
-// HasEnvs returns a boolean if a field has been set.
-func (o *InlineResponse200) HasEnvs() bool {
-	if o != nil && o.Envs != nil {
+// HasProjects returns a boolean if a field has been set.
+func (o *InlineResponse200) HasProjects() bool {
+	if o != nil && o.Projects != nil {
 		return true
 	}
 
 	return false
 }
 
-// SetEnvs gets a reference to the given []EnvironmentVariable and assigns it to the Envs field.
-func (o *InlineResponse200) SetEnvs(v []EnvironmentVariable) {
-	o.Envs = &v
+// SetProjects gets a reference to the given []Project and assigns it to the Projects field.
+func (o *InlineResponse200) SetProjects(v []Project) {
+	o.Projects = &v
 }
 
 func (o InlineResponse200) MarshalJSON() ([]byte, error) {
 	toSerialize := map[string]interface{}{}
-	if o.Envs != nil {
-		toSerialize["envs"] = o.Envs
+	if o.Projects != nil {
+		toSerialize["projects"] = o.Projects
 	}
 	return json.Marshal(toSerialize)
 }

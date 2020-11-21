@@ -4,7 +4,7 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**Envs** | Pointer to [**[]EnvironmentVariable**](EnvironmentVariable.md) |  | [optional] 
+**Projects** | Pointer to [**[]Project**](Project.md) |  | [optional] 
 
 ## Methods
 
@@ -25,30 +25,30 @@ NewInlineResponse200WithDefaults instantiates a new InlineResponse200 object
 This constructor will only assign default values to properties that have it defined,
 but it doesn't guarantee that properties required by API are set
 
-### GetEnvs
+### GetProjects
 
-`func (o *InlineResponse200) GetEnvs() []EnvironmentVariable`
+`func (o *InlineResponse200) GetProjects() []Project`
 
-GetEnvs returns the Envs field if non-nil, zero value otherwise.
+GetProjects returns the Projects field if non-nil, zero value otherwise.
 
-### GetEnvsOk
+### GetProjectsOk
 
-`func (o *InlineResponse200) GetEnvsOk() (*[]EnvironmentVariable, bool)`
+`func (o *InlineResponse200) GetProjectsOk() (*[]Project, bool)`
 
-GetEnvsOk returns a tuple with the Envs field if it's non-nil, zero value otherwise
+GetProjectsOk returns a tuple with the Projects field if it's non-nil, zero value otherwise
 and a boolean to check if the value has been set.
 
-### SetEnvs
+### SetProjects
 
-`func (o *InlineResponse200) SetEnvs(v []EnvironmentVariable)`
+`func (o *InlineResponse200) SetProjects(v []Project)`
 
-SetEnvs sets Envs field to given value.
+SetProjects sets Projects field to given value.
 
-### HasEnvs
+### HasProjects
 
-`func (o *InlineResponse200) HasEnvs() bool`
+`func (o *InlineResponse200) HasProjects() bool`
 
-HasEnvs returns a boolean if a field has been set.
+HasProjects returns a boolean if a field has been set.
 
 
 [[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)

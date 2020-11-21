@@ -9,6 +9,24 @@ servers:
 security:
 - bearerAuth: []
 paths:
+  /v4/projects:
+    get:
+      operationId: getProjects
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_200'
+          description: Success
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Unexpected error
+      tags:
+      - Projects
   /v1/projects/{id}:
     delete:
       operationId: removeProjectById
@@ -212,7 +230,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/inline_response_200'
+                $ref: '#/components/schemas/inline_response_200_1'
           description: Success
         default:
           content:
@@ -596,6 +614,39 @@ components:
       - $ref: '#/components/schemas/TargetEnvironment'
       - $ref: '#/components/schemas/TargetEnvironmentList'
     inline_response_200:
+      example:
+        projects:
+        - name: name
+          link:
+            projectUrl: projectUrl
+            productionBranch: productionBranch
+            projectNamespace: projectNamespace
+            type: type
+            projectName: projectName
+            projectId: projectId
+          alias:
+          - domain: domain
+          - domain: domain
+          id: id
+        - name: name
+          link:
+            projectUrl: projectUrl
+            productionBranch: productionBranch
+            projectNamespace: projectNamespace
+            type: type
+            projectName: projectName
+            projectId: projectId
+          alias:
+          - domain: domain
+          - domain: domain
+          id: id
+      properties:
+        projects:
+          items:
+            $ref: '#/components/schemas/Project'
+          type: array
+      type: object
+    inline_response_200_1:
       example:
         envs:
         - createdAt: 0

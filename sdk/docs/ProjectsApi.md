@@ -11,6 +11,7 @@ Method | HTTP request | Description
 [**DeleteEnvironmentVariable**](ProjectsApi.md#DeleteEnvironmentVariable) | **Delete** /v4/projects/{projectId}/env/{key} | 
 [**GetProjectById**](ProjectsApi.md#GetProjectById) | **Get** /v1/projects/{id} | 
 [**GetProjectEnvironmentVariables**](ProjectsApi.md#GetProjectEnvironmentVariables) | **Get** /v6/projects/{id}/env | 
+[**GetProjects**](ProjectsApi.md#GetProjects) | **Get** /v4/projects | 
 [**RemoveAliasFromProject**](ProjectsApi.md#RemoveAliasFromProject) | **Delete** /v1/projects/{projectId}/alias | 
 [**RemoveLinkByProjectId**](ProjectsApi.md#RemoveLinkByProjectId) | **Delete** /v4/projects/{id}/link | 
 [**RemoveProjectById**](ProjectsApi.md#RemoveProjectById) | **Delete** /v1/projects/{id} | 
@@ -430,7 +431,7 @@ Name | Type | Description  | Notes
 
 ## GetProjectEnvironmentVariables
 
-> InlineResponse200 GetProjectEnvironmentVariables(ctx, id).Execute()
+> InlineResponse2001 GetProjectEnvironmentVariables(ctx, id).Execute()
 
 
 
@@ -456,7 +457,7 @@ func main() {
         fmt.Fprintf(os.Stderr, "Error when calling `ProjectsApi.GetProjectEnvironmentVariables``: %v\n", err)
         fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
     }
-    // response from `GetProjectEnvironmentVariables`: InlineResponse200
+    // response from `GetProjectEnvironmentVariables`: InlineResponse2001
     fmt.Fprintf(os.Stdout, "Response from `ProjectsApi.GetProjectEnvironmentVariables`: %v\n", resp)
 }
 ```
@@ -476,6 +477,65 @@ Other parameters are passed through a pointer to a apiGetProjectEnvironmentVaria
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
+
+
+### Return type
+
+[**InlineResponse2001**](inline_response_200_1.md)
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+- **Content-Type**: Not defined
+- **Accept**: application/json
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints)
+[[Back to Model list]](../README.md#documentation-for-models)
+[[Back to README]](../README.md)
+
+
+## GetProjects
+
+> InlineResponse200 GetProjects(ctx).Execute()
+
+
+
+### Example
+
+```go
+package main
+
+import (
+    "context"
+    "fmt"
+    "os"
+    openapiclient "./openapi"
+)
+
+func main() {
+
+    configuration := openapiclient.NewConfiguration()
+    api_client := openapiclient.NewAPIClient(configuration)
+    resp, r, err := api_client.ProjectsApi.GetProjects(context.Background()).Execute()
+    if err != nil {
+        fmt.Fprintf(os.Stderr, "Error when calling `ProjectsApi.GetProjects``: %v\n", err)
+        fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
+    }
+    // response from `GetProjects`: InlineResponse200
+    fmt.Fprintf(os.Stdout, "Response from `ProjectsApi.GetProjects`: %v\n", resp)
+}
+```
+
+### Path Parameters
+
+This endpoint does not need any parameter.
+
+### Other Parameters
+
+Other parameters are passed through a pointer to a apiGetProjectsRequest struct via the builder pattern
 
 
 ### Return type

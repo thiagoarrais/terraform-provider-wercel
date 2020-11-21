@@ -7,6 +7,25 @@ servers:
   - url: https://api.vercel.com
     description: Main Vercel API endpoint
 paths:
+  /v4/projects:
+    get:
+      operationId: getProjects
+      tags:
+        - Projects
+      responses:
+        '200':
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  projects:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Project"
+        default:
+          $ref: "#/components/responses/Error"
   /v1/projects/{id}:
     get:
       operationId: getProjectById
@@ -23,7 +42,7 @@ paths:
           description: "Success"
           content:
             application/json:
-              schema: 
+              schema:
                 $ref: "#/components/schemas/Project"
         default:
           $ref: "#/components/responses/Error"
