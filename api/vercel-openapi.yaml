@@ -225,10 +225,6 @@ paths:
       responses:
         '200':
           description: "Success"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/EnvironmentVariable"
         default:
           $ref: "#/components/responses/Error"
   /v13/now/deployments:

@@ -506,7 +506,7 @@ func (r ApiDeleteEnvironmentVariableRequest) Target(target string) ApiDeleteEnvi
 	return r
 }
 
-func (r ApiDeleteEnvironmentVariableRequest) Execute() (EnvironmentVariable, *_nethttp.Response, error) {
+func (r ApiDeleteEnvironmentVariableRequest) Execute() (*_nethttp.Response, error) {
 	return r.ApiService.DeleteEnvironmentVariableExecute(r)
 }
 
@@ -528,21 +528,19 @@ func (a *ProjectsApiService) DeleteEnvironmentVariable(ctx _context.Context, pro
 
 /*
  * Execute executes the request
- * @return EnvironmentVariable
  */
-func (a *ProjectsApiService) DeleteEnvironmentVariableExecute(r ApiDeleteEnvironmentVariableRequest) (EnvironmentVariable, *_nethttp.Response, error) {
+func (a *ProjectsApiService) DeleteEnvironmentVariableExecute(r ApiDeleteEnvironmentVariableRequest) (*_nethttp.Response, error) {
 	var (
 		localVarHTTPMethod   = _nethttp.MethodDelete
 		localVarPostBody     interface{}
 		localVarFormFileName string
 		localVarFileName     string
 		localVarFileBytes    []byte
-		localVarReturnValue  EnvironmentVariable
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "ProjectsApiService.DeleteEnvironmentVariable")
 	if err != nil {
-		return localVarReturnValue, nil, GenericOpenAPIError{error: err.Error()}
+		return nil, GenericOpenAPIError{error: err.Error()}
 	}
 
 	localVarPath := localBasePath + "/v4/projects/{projectId}/env/{key}"
@@ -553,7 +551,7 @@ func (a *ProjectsApiService) DeleteEnvironmentVariableExecute(r ApiDeleteEnviron
 	localVarQueryParams := _neturl.Values{}
 	localVarFormParams := _neturl.Values{}
 	if r.target == nil {
-		return localVarReturnValue, nil, reportError("target is required and must be specified")
+		return nil, reportError("target is required and must be specified")
 	}
 
 	localVarQueryParams.Add("target", parameterToString(*r.target, ""))
@@ -576,18 +574,18 @@ func (a *ProjectsApiService) DeleteEnvironmentVariableExecute(r ApiDeleteEnviron
 	}
 	req, err := a.client.prepareRequest(r.ctx, localVarPath, localVarHTTPMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFormFileName, localVarFileName, localVarFileBytes)
 	if err != nil {
-		return localVarReturnValue, nil, err
+		return nil, err
 	}
 
 	localVarHTTPResponse, err := a.client.callAPI(req)
 	if err != nil || localVarHTTPResponse == nil {
-		return localVarReturnValue, localVarHTTPResponse, err
+		return localVarHTTPResponse, err
 	}
 
 	localVarBody, err := _ioutil.ReadAll(localVarHTTPResponse.Body)
 	localVarHTTPResponse.Body.Close()
 	if err != nil {
-		return localVarReturnValue, localVarHTTPResponse, err
+		return localVarHTTPResponse, err
 	}
 
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -599,22 +597,13 @@ func (a *ProjectsApiService) DeleteEnvironmentVariableExecute(r ApiDeleteEnviron
 		err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 		if err != nil {
 			newErr.error = err.Error()
-			return localVarReturnValue, localVarHTTPResponse, newErr
+			return localVarHTTPResponse, newErr
 		}
 		newErr.model = v
-		return localVarReturnValue, localVarHTTPResponse, newErr
+		return localVarHTTPResponse, newErr
 	}
 
-	err = a.client.decode(&localVarReturnValue, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
-	if err != nil {
-		newErr := GenericOpenAPIError{
-			body:  localVarBody,
-			error: err.Error(),
-		}
-		return localVarReturnValue, localVarHTTPResponse, newErr
-	}
-
-	return localVarReturnValue, localVarHTTPResponse, nil
+	return localVarHTTPResponse, nil
 }
 
 type ApiGetProjectByIdRequest struct {

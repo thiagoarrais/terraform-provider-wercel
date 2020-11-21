@@ -279,10 +279,6 @@ paths:
         style: form
       responses:
         "200":
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/EnvironmentVariable'
           description: Success
         default:
           content:

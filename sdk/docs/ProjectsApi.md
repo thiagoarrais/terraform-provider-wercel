@@ -291,7 +291,7 @@ Name | Type | Description  | Notes
 
 ## DeleteEnvironmentVariable
 
-> EnvironmentVariable DeleteEnvironmentVariable(ctx, projectId, key).Target(target).Execute()
+> DeleteEnvironmentVariable(ctx, projectId, key).Target(target).Execute()
 
 
 
@@ -319,8 +319,6 @@ func main() {
         fmt.Fprintf(os.Stderr, "Error when calling `ProjectsApi.DeleteEnvironmentVariable``: %v\n", err)
         fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
     }
-    // response from `DeleteEnvironmentVariable`: EnvironmentVariable
-    fmt.Fprintf(os.Stdout, "Response from `ProjectsApi.DeleteEnvironmentVariable`: %v\n", resp)
 }
 ```
 
@@ -346,7 +344,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**EnvironmentVariable**](EnvironmentVariable.md)
+ (empty response body)
 
 ### Authorization
 

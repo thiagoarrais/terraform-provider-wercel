@@ -141,7 +141,7 @@ func resourceEnvvarDelete(ctx context.Context, d *schema.ResourceData, m interfa
 	conf := sdk.NewConfiguration()
 	conf.AddDefaultHeader("Authorization", fmt.Sprintf("Bearer %s", token))
 	sdkClient := sdk.NewAPIClient(conf)
-	_, _, err := sdkClient.ProjectsApi.DeleteEnvironmentVariable(ctx, projectID, key).Target(target).Execute()
+	_, err := sdkClient.ProjectsApi.DeleteEnvironmentVariable(ctx, projectID, key).Target(target).Execute()
 	if err != nil {
 		return diagFromSDKErr(err)
 	}
