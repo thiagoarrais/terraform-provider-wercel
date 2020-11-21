@@ -23,6 +23,12 @@ paths:
       responses:
         "204":
           description: Success
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Unexpected error
       tags:
       - Projects
     get:
@@ -42,6 +48,12 @@ paths:
               schema:
                 $ref: '#/components/schemas/Project'
           description: Success
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Unexpected error
       tags:
       - Projects
   /v1/projects/{projectId}/alias:
@@ -65,6 +77,12 @@ paths:
       responses:
         "200":
           description: Success
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Unexpected error
       tags:
       - Projects
     post:
@@ -85,6 +103,12 @@ paths:
       responses:
         "200":
           description: Success
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Unexpected error
       tags:
       - Projects
   /v6/projects:
@@ -103,7 +127,17 @@ paths:
                 $ref: '#/components/schemas/Project'
           description: Success
         "409":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
           description: Project already exists
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Unexpected error
       tags:
       - Projects
   /v4/projects/{id}/link:
@@ -124,6 +158,12 @@ paths:
               schema:
                 $ref: '#/components/schemas/Project'
           description: Success
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Unexpected error
       tags:
       - Projects
     post:
@@ -148,6 +188,12 @@ paths:
               schema:
                 $ref: '#/components/schemas/Project'
           description: Success
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Unexpected error
       tags:
       - Projects
   /v6/projects/{id}/env:
@@ -168,6 +214,12 @@ paths:
               schema:
                 $ref: '#/components/schemas/inline_response_200'
           description: Success
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Unexpected error
       tags:
       - Projects
     post:
@@ -192,6 +244,12 @@ paths:
               schema:
                 $ref: '#/components/schemas/EnvironmentVariable'
           description: Success
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Unexpected error
       tags:
       - Projects
   /v4/projects/{projectId}/env/{key}:
@@ -226,6 +284,12 @@ paths:
               schema:
                 $ref: '#/components/schemas/EnvironmentVariable'
           description: Success
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Unexpected error
       tags:
       - Projects
   /v13/now/deployments:
@@ -239,6 +303,12 @@ paths:
       responses:
         "200":
           description: Success
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Unexpected error
       tags:
       - Deployments
   /v2/now/secrets:
@@ -256,6 +326,12 @@ paths:
               schema:
                 $ref: '#/components/schemas/Secret'
           description: Success
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Unexpected error
       tags:
       - Secrets
   /v2/now/secrets/{name}:
@@ -276,10 +352,35 @@ paths:
               schema:
                 $ref: '#/components/schemas/Secret'
           description: Success
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Unexpected error
       tags:
       - Secrets
 components:
+  responses:
+    Error:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+      description: Unexpected error
   schemas:
+    Error:
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+      type: object
+    ErrorResponse:
+      properties:
+        error:
+          $ref: '#/components/schemas/Error'
+      type: object
     Project:
       example:
         name: name

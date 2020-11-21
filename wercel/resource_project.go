@@ -87,7 +87,7 @@ func resourceProjectCreate(ctx context.Context, d *schema.ResourceData, m interf
 		}).
 		Execute()
 	if err != nil {
-		return diag.FromErr(err)
+		return diagFromSDKErr(err)
 	}
 
 	projectLink := project.GetLink()
@@ -104,7 +104,7 @@ func resourceProjectCreate(ctx context.Context, d *schema.ResourceData, m interf
 		DeploymentCreation(*deploymentCreation).
 		Execute()
 	if err != nil {
-		return diag.FromErr(err)
+		return diagFromSDKErr(err)
 	}
 
 	d.SetId(project.GetId())
@@ -122,7 +122,7 @@ func resourceProjectRead(ctx context.Context, d *schema.ResourceData, m interfac
 	client := sdk.NewAPIClient(conf)
 	project, _, err := client.ProjectsApi.GetProjectById(ctx, d.Id()).Execute()
 	if err != nil {
-		return diag.FromErr(err)
+		return diagFromSDKErr(err)
 	}
 
 	if err := d.Set("name", project.GetName()); err != nil {
@@ -164,7 +164,7 @@ func resourceProjectUpdate(ctx context.Context, d *schema.ResourceData, m interf
 		// WARN: undocumented endpoint DELETE /v4/projects/:project_id/link
 		_, _, err := sdkClient.ProjectsApi.RemoveLinkByProjectId(ctx, d.Id()).Execute()
 		if err != nil {
-			return diag.FromErr(err)
+			return diagFromSDKErr(err)
 		}
 
 		projectURL := d.Get("repo").([]interface{})[0].(map[string]interface{})["project_url"].(string)
@@ -182,7 +182,7 @@ func resourceProjectUpdate(ctx context.Context, d *schema.ResourceData, m interf
 				Repo: fmt.Sprintf("%s/%s", gitlabNamespace, gitlabProjectName),
 			}).Execute()
 		if err != nil {
-			return diag.FromErr(err)
+			return diagFromSDKErr(err)
 		}
 
 		gitSource := linkProject.GetLink()
@@ -202,7 +202,7 @@ func resourceProjectUpdate(ctx context.Context, d *schema.ResourceData, m interf
 			DeploymentCreation(*deploymentCreation).
 			Execute()
 		if err != nil {
-			return diag.FromErr(err)
+			return diagFromSDKErr(err)
 		}
 	}
 
@@ -210,7 +210,7 @@ func resourceProjectUpdate(ctx context.Context, d *schema.ResourceData, m interf
 		old, new := d.GetChange("domains")
 		err := syncDomains(ctx, d.Id(), token, old, new)
 		if err != nil {
-			return diag.FromErr(err)
+			return diagFromSDKErr(err)
 		}
 	}
 
@@ -258,7 +258,7 @@ func resourceProjectDelete(ctx context.Context, d *schema.ResourceData, m interf
 	_, err := sdkClient.ProjectsApi.RemoveProjectById(ctx, d.Id()).
 		Execute()
 	if err != nil {
-		return diag.FromErr(err)
+		return diagFromSDKErr(err)
 	}
 
 	d.SetId("")

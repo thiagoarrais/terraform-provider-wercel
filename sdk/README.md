@@ -101,6 +101,8 @@ Class | Method | HTTP request | Description
  - [EnvironmentVariable](docs/EnvironmentVariable.md)
  - [EnvironmentVariableCreation](docs/EnvironmentVariableCreation.md)
  - [EnvironmentVariableTarget](docs/EnvironmentVariableTarget.md)
+ - [Error](docs/Error.md)
+ - [ErrorResponse](docs/ErrorResponse.md)
  - [GitRepositoryLink](docs/GitRepositoryLink.md)
  - [InlineResponse200](docs/InlineResponse200.md)
  - [Project](docs/Project.md)

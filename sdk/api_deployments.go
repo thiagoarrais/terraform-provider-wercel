@@ -85,7 +85,7 @@ func (a *DeploymentsApiService) CreateNewDeploymentExecute(r ApiCreateNewDeploym
 	}
 
 	// to determine the Accept header
-	localVarHTTPHeaderAccepts := []string{}
+	localVarHTTPHeaderAccepts := []string{"application/json"}
 
 	// set Accept header
 	localVarHTTPHeaderAccept := selectHeaderAccept(localVarHTTPHeaderAccepts)
@@ -115,6 +115,13 @@ func (a *DeploymentsApiService) CreateNewDeploymentExecute(r ApiCreateNewDeploym
 			body:  localVarBody,
 			error: localVarHTTPResponse.Status,
 		}
+		var v ErrorResponse
+		err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
+		if err != nil {
+			newErr.error = err.Error()
+			return localVarHTTPResponse, newErr
+		}
+		newErr.model = v
 		return localVarHTTPResponse, newErr
 	}
 

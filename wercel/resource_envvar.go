@@ -95,7 +95,7 @@ func resourceEnvvarCreate(ctx context.Context, d *schema.ResourceData, m interfa
 		}).
 		Execute()
 	if err != nil {
-		return diag.FromErr(err)
+		return diagFromSDKErr(err)
 	}
 
 	secretUID := secret.GetUid()
@@ -112,7 +112,7 @@ func resourceEnvvarCreate(ctx context.Context, d *schema.ResourceData, m interfa
 		}).
 		Execute()
 	if err != nil {
-		return diag.FromErr(err)
+		return diagFromSDKErr(err)
 	}
 
 	d.SetId(fmt.Sprintf("%s/%s", projectID, key))
@@ -143,12 +143,12 @@ func resourceEnvvarDelete(ctx context.Context, d *schema.ResourceData, m interfa
 	sdkClient := sdk.NewAPIClient(conf)
 	_, _, err := sdkClient.ProjectsApi.DeleteEnvironmentVariable(ctx, projectID, key).Target(target).Execute()
 	if err != nil {
-		return diag.FromErr(err)
+		return diagFromSDKErr(err)
 	}
 
 	_, _, err = sdkClient.SecretsApi.RemoveSecret(ctx, secretName).Execute()
 	if err != nil {
-		return diag.FromErr(err)
+		return diagFromSDKErr(err)
 	}
 
 	// deliberately ignoring resp.StatusCode here because the Secret is a secondary resource
@@ -171,7 +171,7 @@ func resourceEnvvarDiff(ctx context.Context, d *schema.ResourceDiff, m interface
 		sdkClient := sdk.NewAPIClient(conf)
 		project, _, err := sdkClient.ProjectsApi.GetProjectEnvironmentVariables(ctx, projectID.(string)).Execute()
 		if err != nil {
-			return err
+			return errorFromSDKErr(err)
 		}
 		for _, envvar := range project.GetEnvs() {
 			targetRead := envvar.GetTarget().TargetEnvironment
