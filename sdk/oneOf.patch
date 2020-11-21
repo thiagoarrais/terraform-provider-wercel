@@ -1,0 +1,77 @@
+--- model_environment_variable_target.go	2020-11-21 11:42:29.738410735 -0300
++++ /home/thiago/devel/terraform-provider-wercel/sdk/model_environment_variable_target.go	2020-11-21 12:20:23.682444384 -0300
+@@ -17,8 +17,8 @@
+ 
+ // EnvironmentVariableTarget - struct for EnvironmentVariableTarget
+ type EnvironmentVariableTarget struct {
+-	TargetEnvironment *TargetEnvironment
+-	[]TargetEnvironment *[]TargetEnvironment
++	TargetEnvironment     *TargetEnvironment
++	TargetEnvironmentList *[]TargetEnvironment
+ }
+ 
+ // TargetEnvironmentAsEnvironmentVariableTarget is a convenience function that returns TargetEnvironment wrapped in EnvironmentVariableTarget
+@@ -26,9 +26,9 @@
+ 	return EnvironmentVariableTarget{ TargetEnvironment: v}
+ }
+ 
+-// []TargetEnvironmentAsEnvironmentVariableTarget is a convenience function that returns []TargetEnvironment wrapped in EnvironmentVariableTarget
+-func []TargetEnvironmentAsEnvironmentVariableTarget(v *[]TargetEnvironment) EnvironmentVariableTarget {
+-	return EnvironmentVariableTarget{ []TargetEnvironment: v}
++// TargetEnvironmentListAsEnvironmentVariableTarget is a convenience function that returns []TargetEnvironment wrapped in EnvironmentVariableTarget
++func TargetEnvironmentListAsEnvironmentVariableTarget(v *[]TargetEnvironment) EnvironmentVariableTarget {
++	return EnvironmentVariableTarget{TargetEnvironmentList: v}
+ }
+ 
+ 
+@@ -50,22 +50,22 @@
+ 	}
+ 
+ 	// try to unmarshal data into []TargetEnvironment
+-	err = json.Unmarshal(data, &dst.[]TargetEnvironment)
++	err = json.Unmarshal(data, &dst.TargetEnvironmentList)
+ 	if err == nil {
+-		json[]TargetEnvironment, _ := json.Marshal(dst.[]TargetEnvironment)
+-		if string(json[]TargetEnvironment) == "{}" { // empty struct
+-			dst.[]TargetEnvironment = nil
++		jsonTargetEnvironmentList, _ := json.Marshal(dst.TargetEnvironmentList)
++		if string(jsonTargetEnvironmentList) == "{}" { // empty struct
++			dst.TargetEnvironmentList = nil
+ 		} else {
+ 			match++
+ 		}
+ 	} else {
+-		dst.[]TargetEnvironment = nil
++		dst.TargetEnvironmentList = nil
+ 	}
+ 
+ 	if match > 1 { // more than 1 match
+ 		// reset to nil
+ 		dst.TargetEnvironment = nil
+-		dst.[]TargetEnvironment = nil
++		dst.TargetEnvironmentList = nil
+ 
+ 		return fmt.Errorf("Data matches more than one schema in oneOf(EnvironmentVariableTarget)")
+ 	} else if match == 1 {
+@@ -81,8 +81,8 @@
+ 		return json.Marshal(&src.TargetEnvironment)
+ 	}
+ 
+-	if src.[]TargetEnvironment != nil {
+-		return json.Marshal(&src.[]TargetEnvironment)
++	if src.TargetEnvironmentList != nil {
++		return json.Marshal(&src.TargetEnvironmentList)
+ 	}
+ 
+ 	return nil, nil // no data in oneOf schemas
+@@ -94,8 +94,8 @@
+ 		return obj.TargetEnvironment
+ 	}
+ 
+-	if obj.[]TargetEnvironment != nil {
+-		return obj.[]TargetEnvironment
++	if obj.TargetEnvironmentList != nil {
++		return obj.TargetEnvironmentList
+ 	}
+ 
+ 	// all schemas are nil

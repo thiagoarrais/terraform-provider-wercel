@@ -134,6 +134,51 @@ paths:
             application/json:
               schema: 
                 $ref: "#/components/schemas/Project"
+  /v6/projects/{id}/env:
+    get:
+      operationId: getProjectEnvironmentVariables
+      tags:
+        - Projects
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  envs:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/EnvironmentVariable"
+    post:
+      operationId: createProjectEnvironmentVariable
+      tags:
+        - Projects
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EnvironmentVariableCreation"
+      responses:
+        '200':
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EnvironmentVariable"
   /v13/now/deployments:
     post:
       operationId: createNewDeployment
@@ -304,6 +349,61 @@ components:
               type: array
               items:
                 type: integer
+    EnvironmentVariableCreation:
+      required:
+        - type
+        - key
+        - value
+        - target
+      type: object
+      properties:
+        type:
+          type: string
+          enum: [ plain, secret, system ]
+        key:
+          type: string
+        value:
+          type: string
+        target:
+          type: array
+          items:
+            type: string
+            enum: [ development, preview, production ]
+    EnvironmentVariable:
+      required:
+        - type
+        - id
+        - key
+      type: object
+      properties:
+        type:
+          type: string
+          enum: [ plain, secret, system ]
+        id:
+          type: string
+        key:
+          type: string
+        value:
+          type: string
+        target:
+          $ref: "#/components/schema/EnvironmentVariableTarget"
+        createdAt:
+          type: integer
+          format: int64
+        updatedAt:
+          type: integer
+          format: int64
+    TargetEnvironment:
+      type: string
+      enum: [ development, preview, production ]
+    TargetEnvironmentList:
+      type: array
+      items:
+        $ref: "#/components/schemas/TargetEnvironment"
+    EnvironmentVariableTarget:
+      oneOf:
+        - $ref: "#/components/schemas/TargetEnvironment"
+        - $ref: "#/components/schemas/TargetEnvironmentList"
   securitySchemes:
     bearerAuth:
       type: http

@@ -11,7 +11,11 @@ docs/AliasInclusion.md
 docs/DeploymentCreation.md
 docs/DeploymentCreationGitSource.md
 docs/DeploymentsApi.md
+docs/EnvironmentVariable.md
+docs/EnvironmentVariableCreation.md
+docs/EnvironmentVariableTarget.md
 docs/GitRepositoryLink.md
+docs/InlineResponse200.md
 docs/Project.md
 docs/ProjectAlias.md
 docs/ProjectCreation.md
@@ -21,13 +25,18 @@ docs/Secret.md
 docs/SecretCreation.md
 docs/SecretValue.md
 docs/SecretsApi.md
+docs/TargetEnvironment.md
 git_push.sh
 go.mod
 go.sum
 model_alias_inclusion.go
 model_deployment_creation.go
 model_deployment_creation_git_source.go
+model_environment_variable.go
+model_environment_variable_creation.go
+model_environment_variable_target.go
 model_git_repository_link.go
+model_inline_response_200.go
 model_project.go
 model_project_alias.go
 model_project_creation.go
@@ -35,5 +44,6 @@ model_project_link.go
 model_secret.go
 model_secret_creation.go
 model_secret_value.go
+model_target_environment.go
 response.go
 utils.go

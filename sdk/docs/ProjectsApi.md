@@ -7,7 +7,9 @@ Method | HTTP request | Description
 [**AddAliasToProject**](ProjectsApi.md#AddAliasToProject) | **Post** /v1/projects/{projectId}/alias | 
 [**CreateLinkByProjectId**](ProjectsApi.md#CreateLinkByProjectId) | **Post** /v4/projects/{id}/link | 
 [**CreateProject**](ProjectsApi.md#CreateProject) | **Post** /v6/projects | 
+[**CreateProjectEnvironmentVariable**](ProjectsApi.md#CreateProjectEnvironmentVariable) | **Post** /v6/projects/{id}/env | 
 [**GetProjectById**](ProjectsApi.md#GetProjectById) | **Get** /v1/projects/{id} | 
+[**GetProjectEnvironmentVariables**](ProjectsApi.md#GetProjectEnvironmentVariables) | **Get** /v6/projects/{id}/env | 
 [**RemoveAliasFromProject**](ProjectsApi.md#RemoveAliasFromProject) | **Delete** /v1/projects/{projectId}/alias | 
 [**RemoveLinkByProjectId**](ProjectsApi.md#RemoveLinkByProjectId) | **Delete** /v4/projects/{id}/link | 
 [**RemoveProjectById**](ProjectsApi.md#RemoveProjectById) | **Delete** /v1/projects/{id} | 
@@ -216,6 +218,76 @@ Name | Type | Description  | Notes
 [[Back to README]](../README.md)
 
 
+## CreateProjectEnvironmentVariable
+
+> EnvironmentVariable CreateProjectEnvironmentVariable(ctx, id).EnvironmentVariableCreation(environmentVariableCreation).Execute()
+
+
+
+### Example
+
+```go
+package main
+
+import (
+    "context"
+    "fmt"
+    "os"
+    openapiclient "./openapi"
+)
+
+func main() {
+    id := "id_example" // string | 
+    environmentVariableCreation := *openapiclient.NewEnvironmentVariableCreation("Type_example", "Key_example", "Value_example", []string{"Target_example")) // EnvironmentVariableCreation |  (optional)
+
+    configuration := openapiclient.NewConfiguration()
+    api_client := openapiclient.NewAPIClient(configuration)
+    resp, r, err := api_client.ProjectsApi.CreateProjectEnvironmentVariable(context.Background(), id).EnvironmentVariableCreation(environmentVariableCreation).Execute()
+    if err != nil {
+        fmt.Fprintf(os.Stderr, "Error when calling `ProjectsApi.CreateProjectEnvironmentVariable``: %v\n", err)
+        fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
+    }
+    // response from `CreateProjectEnvironmentVariable`: EnvironmentVariable
+    fmt.Fprintf(os.Stdout, "Response from `ProjectsApi.CreateProjectEnvironmentVariable`: %v\n", resp)
+}
+```
+
+### Path Parameters
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+**ctx** | **context.Context** | context for authentication, logging, cancellation, deadlines, tracing, etc.
+**id** | **string** |  | 
+
+### Other Parameters
+
+Other parameters are passed through a pointer to a apiCreateProjectEnvironmentVariableRequest struct via the builder pattern
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+
+ **environmentVariableCreation** | [**EnvironmentVariableCreation**](EnvironmentVariableCreation.md) |  | 
+
+### Return type
+
+[**EnvironmentVariable**](EnvironmentVariable.md)
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+- **Content-Type**: application/json
+- **Accept**: application/json
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints)
+[[Back to Model list]](../README.md#documentation-for-models)
+[[Back to README]](../README.md)
+
+
 ## GetProjectById
 
 > Project GetProjectById(ctx, id).Execute()
@@ -269,6 +341,74 @@ Name | Type | Description  | Notes
 ### Return type
 
 [**Project**](Project.md)
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+- **Content-Type**: Not defined
+- **Accept**: application/json
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints)
+[[Back to Model list]](../README.md#documentation-for-models)
+[[Back to README]](../README.md)
+
+
+## GetProjectEnvironmentVariables
+
+> InlineResponse200 GetProjectEnvironmentVariables(ctx, id).Execute()
+
+
+
+### Example
+
+```go
+package main
+
+import (
+    "context"
+    "fmt"
+    "os"
+    openapiclient "./openapi"
+)
+
+func main() {
+    id := "id_example" // string | 
+
+    configuration := openapiclient.NewConfiguration()
+    api_client := openapiclient.NewAPIClient(configuration)
+    resp, r, err := api_client.ProjectsApi.GetProjectEnvironmentVariables(context.Background(), id).Execute()
+    if err != nil {
+        fmt.Fprintf(os.Stderr, "Error when calling `ProjectsApi.GetProjectEnvironmentVariables``: %v\n", err)
+        fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
+    }
+    // response from `GetProjectEnvironmentVariables`: InlineResponse200
+    fmt.Fprintf(os.Stdout, "Response from `ProjectsApi.GetProjectEnvironmentVariables`: %v\n", resp)
+}
+```
+
+### Path Parameters
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+**ctx** | **context.Context** | context for authentication, logging, cancellation, deadlines, tracing, etc.
+**id** | **string** |  | 
+
+### Other Parameters
+
+Other parameters are passed through a pointer to a apiGetProjectEnvironmentVariablesRequest struct via the builder pattern
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+
+
+### Return type
+
+[**InlineResponse200**](inline_response_200.md)
 
 ### Authorization
 

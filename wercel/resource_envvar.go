@@ -1,7 +1,6 @@
 package wercel
 
 import (
-	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -81,7 +80,6 @@ func resourceEnvvar() *schema.Resource {
 }
 
 func resourceEnvvarCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	client := &http.Client{}
 	token := m.(string)
 
 	var diags diag.Diagnostics
@@ -107,42 +105,16 @@ func resourceEnvvarCreate(ctx context.Context, d *schema.ResourceData, m interfa
 	key := d.Get("key").(string)
 	target := d.Get("target").(string)
 
-	reqBody, err := json.Marshal(map[string]string{
-		"key":    key,
-		"value":  secretUID,
-		"target": strings.ToLower(target),
-	})
+	_, _, err = sdkClient.ProjectsApi.CreateProjectEnvironmentVariable(ctx, projectID).
+		EnvironmentVariableCreation(sdk.EnvironmentVariableCreation{
+			Type:   "secret",
+			Key:    key,
+			Value:  secretUID,
+			Target: []string{strings.ToLower(target)},
+		}).
+		Execute()
 	if err != nil {
 		return diag.FromErr(err)
-	}
-	req, err := http.NewRequest(
-		"POST",
-		fmt.Sprintf("%s/v4/projects/%s/env", "https://api.vercel.com", projectID),
-		bytes.NewReader(reqBody),
-	)
-	if err != nil {
-		return diag.FromErr(err)
-	}
-	req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", token))
-	req.Header.Add("Content-Type", "application/json; charset=utf-8")
-
-	resp, err := client.Do(req)
-	if err != nil {
-		return diag.FromErr(err)
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != 200 {
-		if len(resp.Header["Content-Type"]) != 1 || resp.Header["Content-Type"][0] != "application/json; charset=utf-8" {
-			return diag.Errorf("unknown error: %d %s", resp.StatusCode, resp.Status)
-		}
-		var errResponse map[string]interface{}
-		err = json.NewDecoder(resp.Body).Decode(&errResponse)
-		if err != nil {
-			return diag.FromErr(err)
-		}
-		errMessage := errResponse["error"].(map[string]interface{})["message"].(string)
-		return diag.Errorf(errMessage)
 	}
 
 	d.SetId(fmt.Sprintf("%s/%s", projectID, key))
@@ -214,52 +186,29 @@ func resourceEnvvarDelete(ctx context.Context, d *schema.ResourceData, m interfa
 
 func resourceEnvvarDiff(ctx context.Context, d *schema.ResourceDiff, m interface{}) error {
 	if oldSecretUID, ok := d.GetOk("secret_uid"); ok {
-		client := &http.Client{}
 		token := m.(string)
 
 		projectID, _ := d.GetChange("project_id")
 		key, _ := d.GetChange("key")
 		target, _ := d.GetChange("target")
 
-		req, err := http.NewRequest(
-			"GET",
-			fmt.Sprintf("%s/v6/projects/%s/env", "https://api.vercel.com", projectID),
-			nil,
-		)
+		conf := sdk.NewConfiguration()
+		conf.AddDefaultHeader("Authorization", fmt.Sprintf("Bearer %s", token))
+		sdkClient := sdk.NewAPIClient(conf)
+		project, _, err := sdkClient.ProjectsApi.GetProjectEnvironmentVariables(ctx, projectID.(string)).Execute()
 		if err != nil {
 			return err
 		}
-		req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", token))
-
-		resp, err := client.Do(req)
-		if err != nil {
-			return err
-		}
-		defer resp.Body.Close()
-
-		if resp.StatusCode != 200 {
-			if len(resp.Header["Content-Type"]) != 1 || resp.Header["Content-Type"][0] != "application/json; charset=utf-8" {
-				return fmt.Errorf("unknown error: %d %s", resp.StatusCode, resp.Status)
+		for _, envvar := range project.GetEnvs() {
+			targetRead := envvar.GetTarget().TargetEnvironment
+			if targetRead == nil && envvar.GetTarget().TargetEnvironmentList != nil {
+				targetList := *envvar.GetTarget().TargetEnvironmentList
+				if len(targetList) > 0 {
+					targetRead = &targetList[0]
+				}
 			}
-			var errResponse map[string]interface{}
-			err = json.NewDecoder(resp.Body).Decode(&errResponse)
-			if err != nil {
-				return err
-			}
-			errMessage := errResponse["error"].(map[string]interface{})["message"].(string)
-			return fmt.Errorf(errMessage)
-		}
-
-		result := map[string]interface{}{}
-		err = json.NewDecoder(resp.Body).Decode(&result)
-		if err != nil {
-			return err
-		}
-
-		for _, envvarIntf := range result["envs"].([]interface{}) {
-			envvar := envvarIntf.(map[string]interface{})
-			if envvar["key"].(string) == key && strings.EqualFold(envvar["target"].(string), target.(string)) {
-				newSecretUID := envvar["value"].(string)
+			if envvar.GetKey() == key && targetRead != nil && strings.EqualFold(string(*targetRead), target.(string)) {
+				newSecretUID := envvar.GetValue()
 				if oldSecretUID == newSecretUID {
 					return nil
 				}

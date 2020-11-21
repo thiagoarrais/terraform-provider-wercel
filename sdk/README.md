@@ -82,7 +82,9 @@ Class | Method | HTTP request | Description
 *ProjectsApi* | [**AddAliasToProject**](docs/ProjectsApi.md#addaliastoproject) | **Post** /v1/projects/{projectId}/alias | 
 *ProjectsApi* | [**CreateLinkByProjectId**](docs/ProjectsApi.md#createlinkbyprojectid) | **Post** /v4/projects/{id}/link | 
 *ProjectsApi* | [**CreateProject**](docs/ProjectsApi.md#createproject) | **Post** /v6/projects | 
+*ProjectsApi* | [**CreateProjectEnvironmentVariable**](docs/ProjectsApi.md#createprojectenvironmentvariable) | **Post** /v6/projects/{id}/env | 
 *ProjectsApi* | [**GetProjectById**](docs/ProjectsApi.md#getprojectbyid) | **Get** /v1/projects/{id} | 
+*ProjectsApi* | [**GetProjectEnvironmentVariables**](docs/ProjectsApi.md#getprojectenvironmentvariables) | **Get** /v6/projects/{id}/env | 
 *ProjectsApi* | [**RemoveAliasFromProject**](docs/ProjectsApi.md#removealiasfromproject) | **Delete** /v1/projects/{projectId}/alias | 
 *ProjectsApi* | [**RemoveLinkByProjectId**](docs/ProjectsApi.md#removelinkbyprojectid) | **Delete** /v4/projects/{id}/link | 
 *ProjectsApi* | [**RemoveProjectById**](docs/ProjectsApi.md#removeprojectbyid) | **Delete** /v1/projects/{id} | 
@@ -95,7 +97,11 @@ Class | Method | HTTP request | Description
  - [AliasInclusion](docs/AliasInclusion.md)
  - [DeploymentCreation](docs/DeploymentCreation.md)
  - [DeploymentCreationGitSource](docs/DeploymentCreationGitSource.md)
+ - [EnvironmentVariable](docs/EnvironmentVariable.md)
+ - [EnvironmentVariableCreation](docs/EnvironmentVariableCreation.md)
+ - [EnvironmentVariableTarget](docs/EnvironmentVariableTarget.md)
  - [GitRepositoryLink](docs/GitRepositoryLink.md)
+ - [InlineResponse200](docs/InlineResponse200.md)
  - [Project](docs/Project.md)
  - [ProjectAlias](docs/ProjectAlias.md)
  - [ProjectCreation](docs/ProjectCreation.md)
@@ -103,6 +109,7 @@ Class | Method | HTTP request | Description
  - [Secret](docs/Secret.md)
  - [SecretCreation](docs/SecretCreation.md)
  - [SecretValue](docs/SecretValue.md)
+ - [TargetEnvironment](docs/TargetEnvironment.md)
 
 
 ## Documentation For Authorization
