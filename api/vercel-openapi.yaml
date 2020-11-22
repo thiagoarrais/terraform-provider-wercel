@@ -303,6 +303,45 @@ paths:
                 $ref: "#/components/schemas/Secret"
         default:
           $ref: "#/components/responses/Error"
+  /v3/now/secrets:
+    get:
+      operationId: listSecrets
+      tags:
+        - Secrets
+      responses:
+        '200':
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  secrets:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Secret"
+        default:
+          $ref: "#/components/responses/Error"
+  /v3/now/secrets/{nameOrId}:
+    get:
+      operationId: getSecret
+      tags:
+        - Secrets
+      parameters:
+        - name: nameOrId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Secret"
+        default:
+          $ref: "#/components/responses/Error"
 components:
   responses:
     Error:

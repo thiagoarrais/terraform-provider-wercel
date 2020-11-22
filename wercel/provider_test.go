@@ -4,7 +4,9 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"testing"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	"github.com/thiagoarrais/terraform-provider-wercel/sdk"
@@ -35,5 +37,34 @@ func testAccCheckWercelDestroy(s *terraform.State) error {
 		return fmt.Errorf("%d projects found. Resource destruction did not work.", numProjects)
 	}
 
+	secretsResult, _, err := sdkClient.SecretsApi.ListSecrets(context.Background()).Execute()
+	if err != nil {
+		return fmt.Errorf("Could not check Vercel. There may be dangling resources. Reason: %s", errorFromSDKErr(err).Error())
+	}
+
+	numSecrets := len(secretsResult.GetSecrets())
+	if numSecrets > 0 {
+		return fmt.Errorf("%d secrets found. Resource destruction did not work.", numSecrets)
+	}
+
 	return nil
+}
+
+func testAccCheckEquals(msg string, actualOp func() interface{}, expected interface{}) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		actual := actualOp()
+		if actual != expected {
+			return fmt.Errorf("%s. Expected: %#v. Actual: %#v", msg, expected, actual)
+
+		}
+		return nil
+	}
+}
+
+// testAccPreCheck validates the necessary test API keys exist
+// in the testing environment
+func testAccPreCheck(t *testing.T) {
+	if v := os.Getenv("VERCEL_TOKEN"); v == "" {
+		t.Fatal("VERCEL_TOKEN must be set for acceptance tests")
+	}
 }

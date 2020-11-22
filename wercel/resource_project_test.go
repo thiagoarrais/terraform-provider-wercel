@@ -110,22 +110,3 @@ func testAccCheckWercelProjectExists(resourceName string, project *sdk.Project) 
 		return nil
 	}
 }
-
-func testAccCheckEquals(msg string, actualOp func() interface{}, expected interface{}) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		actual := actualOp()
-		if actual != expected {
-			return fmt.Errorf("%s. Expected: %#v. Actual: %#v", msg, expected, actual)
-
-		}
-		return nil
-	}
-}
-
-// testAccPreCheck validates the necessary test API keys exist
-// in the testing environment
-func testAccPreCheck(t *testing.T) {
-	if v := os.Getenv("VERCEL_TOKEN"); v == "" {
-		t.Fatal("VERCEL_TOKEN must be set for acceptance tests")
-	}
-}

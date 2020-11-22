@@ -374,6 +374,50 @@ paths:
           description: Unexpected error
       tags:
       - Secrets
+  /v3/now/secrets:
+    get:
+      operationId: listSecrets
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_200_2'
+          description: Success
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Unexpected error
+      tags:
+      - Secrets
+  /v3/now/secrets/{nameOrId}:
+    get:
+      operationId: getSecret
+      parameters:
+      - explode: false
+        in: path
+        name: nameOrId
+        required: true
+        schema:
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Secret'
+          description: Success
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Unexpected error
+      tags:
+      - Secrets
 components:
   responses:
     Error:
@@ -665,6 +709,33 @@ components:
         envs:
           items:
             $ref: '#/components/schemas/EnvironmentVariable'
+          type: array
+      type: object
+    inline_response_200_2:
+      example:
+        secrets:
+        - uid: uid
+          created: 2000-01-23
+          name: name
+          userId: userId
+          value:
+            data:
+            - 0
+            - 0
+            type: type
+        - uid: uid
+          created: 2000-01-23
+          name: name
+          userId: userId
+          value:
+            data:
+            - 0
+            - 0
+            type: type
+      properties:
+        secrets:
+          items:
+            $ref: '#/components/schemas/Secret'
           type: array
       type: object
     Project_link:

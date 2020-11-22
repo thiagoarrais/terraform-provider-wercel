@@ -91,6 +91,8 @@ Class | Method | HTTP request | Description
 *ProjectsApi* | [**RemoveLinkByProjectId**](docs/ProjectsApi.md#removelinkbyprojectid) | **Delete** /v4/projects/{id}/link | 
 *ProjectsApi* | [**RemoveProjectById**](docs/ProjectsApi.md#removeprojectbyid) | **Delete** /v1/projects/{id} | 
 *SecretsApi* | [**CreateNewSecret**](docs/SecretsApi.md#createnewsecret) | **Post** /v2/now/secrets | 
+*SecretsApi* | [**GetSecret**](docs/SecretsApi.md#getsecret) | **Get** /v3/now/secrets/{nameOrId} | 
+*SecretsApi* | [**ListSecrets**](docs/SecretsApi.md#listsecrets) | **Get** /v3/now/secrets | 
 *SecretsApi* | [**RemoveSecret**](docs/SecretsApi.md#removesecret) | **Delete** /v2/now/secrets/{name} | 
 
 
@@ -107,6 +109,7 @@ Class | Method | HTTP request | Description
  - [GitRepositoryLink](docs/GitRepositoryLink.md)
  - [InlineResponse200](docs/InlineResponse200.md)
  - [InlineResponse2001](docs/InlineResponse2001.md)
+ - [InlineResponse2002](docs/InlineResponse2002.md)
  - [Project](docs/Project.md)
  - [ProjectAlias](docs/ProjectAlias.md)
  - [ProjectCreation](docs/ProjectCreation.md)
