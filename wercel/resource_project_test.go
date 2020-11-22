@@ -40,8 +40,8 @@ provider "wercel" {
 resource "wercel_project" "myproject" {
   name = "%s"
   repo {
-	type        = "gitlab"
-	project_url = "https://gitlab.com/arrais-tfvercel/hello-world"
+  	type        = "gitlab"
+  	project_url = "https://gitlab.com/arrais-tfvercel/hello-world"
   }
 }`, os.Getenv("VERCEL_TOKEN"), name)
 }
