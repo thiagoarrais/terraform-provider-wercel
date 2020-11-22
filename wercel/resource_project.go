@@ -106,6 +106,14 @@ func resourceProjectCreate(ctx context.Context, d *schema.ResourceData, m interf
 		return diagFromSDKErr(err)
 	}
 
+	if d.HasChange("domains") {
+		old, new := d.GetChange("domains")
+		err := syncDomains(ctx, project.GetId(), token, old, new)
+		if err != nil {
+			return diagFromSDKErr(err)
+		}
+	}
+
 	d.SetId(project.GetId())
 
 	return diags
