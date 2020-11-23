@@ -112,6 +112,11 @@ func resourceEnvvarCreate(ctx context.Context, d *schema.ResourceData, m interfa
 		}).
 		Execute()
 	if err != nil {
+		// rollback dangling secret
+		_, _, errAfterErr := sdkClient.SecretsApi.RemoveSecret(ctx, secretName).Execute()
+		if errAfterErr != nil {
+			return diagFromSDKErr(errAfterErr)
+		}
 		return diagFromSDKErr(err)
 	}
 
