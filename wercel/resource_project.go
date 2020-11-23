@@ -57,7 +57,7 @@ func resourceProject() *schema.Resource {
 }
 
 func resourceProjectCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	token := m.(string)
+	sdkClient := m.(config).sdkClient
 
 	var diags diag.Diagnostics
 
@@ -73,9 +73,6 @@ func resourceProjectCreate(ctx context.Context, d *schema.ResourceData, m interf
 	tru := true
 
 	// TODO: should only run this if can't read project
-	conf := sdk.NewConfiguration()
-	conf.AddDefaultHeader("Authorization", fmt.Sprintf("Bearer %s", token))
-	sdkClient := sdk.NewAPIClient(conf)
 	project, _, err := sdkClient.ProjectsApi.CreateProject(ctx).
 		ProjectCreation(sdk.ProjectCreation{
 			Name: name,
@@ -108,7 +105,7 @@ func resourceProjectCreate(ctx context.Context, d *schema.ResourceData, m interf
 
 	if d.HasChange("domains") {
 		old, new := d.GetChange("domains")
-		err := syncDomains(ctx, project.GetId(), token, old, new)
+		err := syncDomains(ctx, project.GetId(), sdkClient, old, new)
 		if err != nil {
 			return diagFromSDKErr(err)
 		}
@@ -120,14 +117,11 @@ func resourceProjectCreate(ctx context.Context, d *schema.ResourceData, m interf
 }
 
 func resourceProjectRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	token := m.(string)
+	sdkClient := m.(config).sdkClient
 
 	var diags diag.Diagnostics
 
-	conf := sdk.NewConfiguration()
-	conf.AddDefaultHeader("Authorization", fmt.Sprintf("Bearer %s", token))
-	client := sdk.NewAPIClient(conf)
-	project, _, err := client.ProjectsApi.GetProjectById(ctx, d.Id()).Execute()
+	project, _, err := sdkClient.ProjectsApi.GetProjectById(ctx, d.Id()).Execute()
 	if err != nil {
 		return diagFromSDKErr(err)
 	}
@@ -162,11 +156,8 @@ func resourceProjectRead(ctx context.Context, d *schema.ResourceData, m interfac
 
 func resourceProjectUpdate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	var diags diag.Diagnostics
-	token := m.(string)
+	sdkClient := m.(config).sdkClient
 
-	conf := sdk.NewConfiguration()
-	conf.AddDefaultHeader("Authorization", fmt.Sprintf("Bearer %s", token))
-	sdkClient := sdk.NewAPIClient(conf)
 	if d.HasChange("repo") {
 		_, _, err := sdkClient.ProjectsApi.RemoveLinkByProjectId(ctx, d.Id()).Execute()
 		if err != nil {
@@ -212,7 +203,7 @@ func resourceProjectUpdate(ctx context.Context, d *schema.ResourceData, m interf
 
 	if d.HasChange("domains") {
 		old, new := d.GetChange("domains")
-		err := syncDomains(ctx, d.Id(), token, old, new)
+		err := syncDomains(ctx, d.Id(), sdkClient, old, new)
 		if err != nil {
 			return diagFromSDKErr(err)
 		}
@@ -221,15 +212,12 @@ func resourceProjectUpdate(ctx context.Context, d *schema.ResourceData, m interf
 	return diags
 }
 
-func syncDomains(ctx context.Context, projectID string, token string, old interface{}, new interface{}) error {
+func syncDomains(ctx context.Context, projectID string, sdkClient *sdk.APIClient, old interface{}, new interface{}) error {
 	oldSet := old.(*schema.Set)
 	newSet := new.(*schema.Set)
 	removedDomains := oldSet.Difference(newSet)
 	addedDomains := newSet.Difference(oldSet)
 
-	conf := sdk.NewConfiguration()
-	conf.AddDefaultHeader("Authorization", fmt.Sprintf("Bearer %s", token))
-	sdkClient := sdk.NewAPIClient(conf)
 	for _, removedDomain := range removedDomains.List() {
 		_, err := sdkClient.ProjectsApi.RemoveAliasFromProject(ctx, projectID).Domain(removedDomain.(string)).Execute()
 		if err != nil {
@@ -252,13 +240,10 @@ func syncDomains(ctx context.Context, projectID string, token string, old interf
 }
 
 func resourceProjectDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	token := m.(string)
+	sdkClient := m.(config).sdkClient
 
 	var diags diag.Diagnostics
 
-	conf := sdk.NewConfiguration()
-	conf.AddDefaultHeader("Authorization", fmt.Sprintf("Bearer %s", token))
-	sdkClient := sdk.NewAPIClient(conf)
 	_, err := sdkClient.ProjectsApi.RemoveProjectById(ctx, d.Id()).
 		Execute()
 	if err != nil {

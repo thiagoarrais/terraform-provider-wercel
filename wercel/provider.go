@@ -2,6 +2,9 @@ package wercel
 
 import (
 	"context"
+	"fmt"
+
+	"github.com/thiagoarrais/terraform-provider-wercel/sdk"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -26,11 +29,21 @@ func Provider() *schema.Provider {
 	}
 }
 
-func providerConfigure(ctx context.Context, d *schema.ResourceData) (interface{}, diag.Diagnostics) {
-	token := d.Get("token").(string)
+type config struct {
+	sdkClient *sdk.APIClient
+}
 
+func providerConfigure(ctx context.Context, d *schema.ResourceData) (interface{}, diag.Diagnostics) {
 	// Warning or errors can be collected in a slice type
 	var diags diag.Diagnostics
 
-	return token, diags
+	token := d.Get("token").(string)
+
+	conf := sdk.NewConfiguration()
+	conf.AddDefaultHeader("Authorization", fmt.Sprintf("Bearer %s", token))
+	cfg := config{
+		sdkClient: sdk.NewAPIClient(conf),
+	}
+
+	return cfg, diags
 }

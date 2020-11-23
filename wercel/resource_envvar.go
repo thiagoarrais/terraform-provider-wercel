@@ -78,16 +78,13 @@ func resourceEnvvar() *schema.Resource {
 }
 
 func resourceEnvvarCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	token := m.(string)
+	sdkClient := m.(config).sdkClient
 
 	var diags diag.Diagnostics
 
 	value := d.Get("value").(string)
 	secretName := uuid.New().String()
 
-	conf := sdk.NewConfiguration()
-	conf.AddDefaultHeader("Authorization", fmt.Sprintf("Bearer %s", token))
-	sdkClient := sdk.NewAPIClient(conf)
 	secret, _, err := sdkClient.SecretsApi.CreateNewSecret(ctx).
 		SecretCreation(sdk.SecretCreation{
 			Name:  secretName,
@@ -134,7 +131,7 @@ func resourceEnvvarRead(ctx context.Context, d *schema.ResourceData, m interface
 }
 
 func resourceEnvvarDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	token := m.(string)
+	sdkClient := m.(config).sdkClient
 
 	var diags diag.Diagnostics
 
@@ -143,9 +140,6 @@ func resourceEnvvarDelete(ctx context.Context, d *schema.ResourceData, m interfa
 	target := d.Get("target").(string)
 	secretName := d.Get("secret_name").(string)
 
-	conf := sdk.NewConfiguration()
-	conf.AddDefaultHeader("Authorization", fmt.Sprintf("Bearer %s", token))
-	sdkClient := sdk.NewAPIClient(conf)
 	_, err := sdkClient.ProjectsApi.DeleteEnvironmentVariable(ctx, projectID, key).Target(target).Execute()
 	if err != nil {
 		return diagFromSDKErr(err)
@@ -165,15 +159,12 @@ func resourceEnvvarDelete(ctx context.Context, d *schema.ResourceData, m interfa
 
 func resourceEnvvarDiff(ctx context.Context, d *schema.ResourceDiff, m interface{}) error {
 	if oldSecretUID, ok := d.GetOk("secret_uid"); ok {
-		token := m.(string)
+		sdkClient := m.(config).sdkClient
 
 		projectID, _ := d.GetChange("project_id")
 		key, _ := d.GetChange("key")
 		target, _ := d.GetChange("target")
 
-		conf := sdk.NewConfiguration()
-		conf.AddDefaultHeader("Authorization", fmt.Sprintf("Bearer %s", token))
-		sdkClient := sdk.NewAPIClient(conf)
 		project, _, err := sdkClient.ProjectsApi.GetProjectEnvironmentVariables(ctx, projectID.(string)).Execute()
 		if err != nil {
 			return errorFromSDKErr(err)
