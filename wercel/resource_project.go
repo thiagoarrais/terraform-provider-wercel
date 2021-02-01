@@ -71,6 +71,11 @@ func resourceProjectCreate(ctx context.Context, d *schema.ResourceData, m interf
 	projectURL := d.Get("repo").([]interface{})[0].(map[string]interface{})["project_url"].(string)
 	root := d.Get("root").(string)
 
+	var rootDirectory *string
+	if root != "" {
+		rootDirectory = &root
+	}
+
 	// TODO: what about gitlab subgroups?
 	re, _ := regexp.Compile("([^/]+)/([^/]+)$")
 	matches := re.FindStringSubmatch(projectURL)
@@ -88,7 +93,7 @@ func resourceProjectCreate(ctx context.Context, d *schema.ResourceData, m interf
 				Sourceless: &tru,
 				Repo:       fmt.Sprintf("%s/%s", gitlabNamespace, gitlabProjectName),
 			},
-			RootDirectory: &root,
+			RootDirectory: rootDirectory,
 		}).
 		WithUserCredentials(1).
 		Execute()
