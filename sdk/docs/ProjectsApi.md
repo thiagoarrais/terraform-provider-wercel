@@ -158,7 +158,7 @@ Name | Type | Description  | Notes
 
 ## CreateProject
 
-> Project CreateProject(ctx).ProjectCreation(projectCreation).Execute()
+> Project CreateProject(ctx).WithUserCredentials(withUserCredentials).ProjectCreation(projectCreation).Execute()
 
 
 
@@ -175,11 +175,12 @@ import (
 )
 
 func main() {
+    withUserCredentials := int32(56) // int32 | 
     projectCreation := *openapiclient.NewProjectCreation("Name_example") // ProjectCreation |  (optional)
 
     configuration := openapiclient.NewConfiguration()
     api_client := openapiclient.NewAPIClient(configuration)
-    resp, r, err := api_client.ProjectsApi.CreateProject(context.Background()).ProjectCreation(projectCreation).Execute()
+    resp, r, err := api_client.ProjectsApi.CreateProject(context.Background()).WithUserCredentials(withUserCredentials).ProjectCreation(projectCreation).Execute()
     if err != nil {
         fmt.Fprintf(os.Stderr, "Error when calling `ProjectsApi.CreateProject``: %v\n", err)
         fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
@@ -200,6 +201,7 @@ Other parameters are passed through a pointer to a apiCreateProjectRequest struc
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
+ **withUserCredentials** | **int32** |  | 
  **projectCreation** | [**ProjectCreation**](ProjectCreation.md) |  | 
 
 ### Return type
@@ -240,7 +242,7 @@ import (
 
 func main() {
     id := "id_example" // string | 
-    environmentVariableCreation := *openapiclient.NewEnvironmentVariableCreation("Type_example", "Key_example", "Value_example", []string{"Target_example")) // EnvironmentVariableCreation |  (optional)
+    environmentVariableCreation := *openapiclient.NewEnvironmentVariableCreation("Type_example", "Key_example", "Value_example", []string{"Target_example"}) // EnvironmentVariableCreation |  (optional)
 
     configuration := openapiclient.NewConfiguration()
     api_client := openapiclient.NewAPIClient(configuration)

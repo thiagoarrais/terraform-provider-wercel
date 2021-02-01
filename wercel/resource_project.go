@@ -43,7 +43,7 @@ func resourceProject() *schema.Resource {
 						"type": {
 							Type:             schema.TypeString,
 							Required:         true,
-							ValidateDiagFunc: toValidateDiagFunc("type", validation.StringInSlice([]string{"gitlab"}, true)),
+							ValidateDiagFunc: toValidateDiagFunc("type", validation.StringInSlice([]string{"gitlab", "github"}, true)),
 						},
 						"project_url": {
 							Type:     schema.TypeString,
@@ -51,6 +51,11 @@ func resourceProject() *schema.Resource {
 						},
 					},
 				},
+			},
+			"root": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Default:  "",
 			},
 		},
 	}
@@ -62,7 +67,9 @@ func resourceProjectCreate(ctx context.Context, d *schema.ResourceData, m interf
 	var diags diag.Diagnostics
 
 	name := d.Get("name").(string)
+	repoType := d.Get("repo").([]interface{})[0].(map[string]interface{})["type"].(string)
 	projectURL := d.Get("repo").([]interface{})[0].(map[string]interface{})["project_url"].(string)
+	root := d.Get("root").(string)
 
 	// TODO: what about gitlab subgroups?
 	re, _ := regexp.Compile("([^/]+)/([^/]+)$")
@@ -77,11 +84,13 @@ func resourceProjectCreate(ctx context.Context, d *schema.ResourceData, m interf
 		ProjectCreation(sdk.ProjectCreation{
 			Name: name,
 			GitRepository: &sdk.GitRepositoryLink{
-				Type:       "gitlab",
+				Type:       repoType,
 				Sourceless: &tru,
 				Repo:       fmt.Sprintf("%s/%s", gitlabNamespace, gitlabProjectName),
 			},
+			RootDirectory: &root,
 		}).
+		WithUserCredentials(1).
 		Execute()
 	if err != nil {
 		return diagFromSDKErr(err)

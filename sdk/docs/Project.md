@@ -7,7 +7,7 @@ Name | Type | Description | Notes
 **Id** | **string** |  | 
 **Name** | **string** |  | 
 **Link** | Pointer to [**ProjectLink**](Project_link.md) |  | [optional] 
-**Alias** | Pointer to [**[]ProjectAlias**](Project_alias.md) |  | [optional] 
+**Alias** | Pointer to [**[]ProjectAlias**](ProjectAlias.md) |  | [optional] 
 
 ## Methods
 

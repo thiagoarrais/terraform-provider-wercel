@@ -18,6 +18,7 @@ import (
 type ProjectCreation struct {
 	Name          string             `json:"name"`
 	GitRepository *GitRepositoryLink `json:"gitRepository,omitempty"`
+	RootDirectory *string            `json:"rootDirectory,omitempty"`
 }
 
 // NewProjectCreation instantiates a new ProjectCreation object
@@ -94,6 +95,38 @@ func (o *ProjectCreation) SetGitRepository(v GitRepositoryLink) {
 	o.GitRepository = &v
 }
 
+// GetRootDirectory returns the RootDirectory field value if set, zero value otherwise.
+func (o *ProjectCreation) GetRootDirectory() string {
+	if o == nil || o.RootDirectory == nil {
+		var ret string
+		return ret
+	}
+	return *o.RootDirectory
+}
+
+// GetRootDirectoryOk returns a tuple with the RootDirectory field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+func (o *ProjectCreation) GetRootDirectoryOk() (*string, bool) {
+	if o == nil || o.RootDirectory == nil {
+		return nil, false
+	}
+	return o.RootDirectory, true
+}
+
+// HasRootDirectory returns a boolean if a field has been set.
+func (o *ProjectCreation) HasRootDirectory() bool {
+	if o != nil && o.RootDirectory != nil {
+		return true
+	}
+
+	return false
+}
+
+// SetRootDirectory gets a reference to the given string and assigns it to the RootDirectory field.
+func (o *ProjectCreation) SetRootDirectory(v string) {
+	o.RootDirectory = &v
+}
+
 func (o ProjectCreation) MarshalJSON() ([]byte, error) {
 	toSerialize := map[string]interface{}{}
 	if true {
@@ -101,6 +134,9 @@ func (o ProjectCreation) MarshalJSON() ([]byte, error) {
 	}
 	if o.GitRepository != nil {
 		toSerialize["gitRepository"] = o.GitRepository
+	}
+	if o.RootDirectory != nil {
+		toSerialize["rootDirectory"] = o.RootDirectory
 	}
 	return json.Marshal(toSerialize)
 }

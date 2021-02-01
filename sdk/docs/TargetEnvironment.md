@@ -1,9 +1,13 @@
 # TargetEnvironment
 
-## Properties
+## Enum
 
-Name | Type | Description | Notes
------------- | ------------- | ------------- | -------------
+
+* `DEVELOPMENT` (value: `"development"`)
+
+* `PREVIEW` (value: `"preview"`)
+
+* `PRODUCTION` (value: `"production"`)
 
 
 [[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)

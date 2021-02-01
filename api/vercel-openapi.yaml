@@ -107,6 +107,14 @@ paths:
       operationId: createProject
       tags:
         - Projects
+      parameters:
+        - in: query
+          name: withUserCredentials
+          required: true
+          schema:
+            type: integer
+            enum:
+              - 1
       requestBody:
         content:
           application/json:
@@ -408,6 +416,8 @@ components:
           type: string
         gitRepository:
           $ref: "#/components/schema/GitRepositoryLink"
+        rootDirectory:
+          type: string
     DeploymentCreation:
       required:
         - name

@@ -132,6 +132,16 @@ paths:
   /v6/projects:
     post:
       operationId: createProject
+      parameters:
+      - explode: true
+        in: query
+        name: withUserCredentials
+        required: true
+        schema:
+          enum:
+          - 1
+          type: integer
+        style: form
       requestBody:
         content:
           application/json:
@@ -475,11 +485,14 @@ components:
           type: github
           sourceless: true
         name: name
+        rootDirectory: rootDirectory
       properties:
         name:
           type: string
         gitRepository:
           $ref: '#/components/schema/GitRepositoryLink'
+        rootDirectory:
+          type: string
       required:
       - name
       type: object

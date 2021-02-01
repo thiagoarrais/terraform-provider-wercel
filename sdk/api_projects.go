@@ -11,6 +11,7 @@
 package sdk
 
 import (
+	"bytes"
 	_context "context"
 	_ioutil "io/ioutil"
 	_nethttp "net/http"
@@ -111,6 +112,7 @@ func (a *ProjectsApiService) AddAliasToProjectExecute(r ApiAddAliasToProjectRequ
 
 	localVarBody, err := _ioutil.ReadAll(localVarHTTPResponse.Body)
 	localVarHTTPResponse.Body.Close()
+	localVarHTTPResponse.Body = _ioutil.NopCloser(bytes.NewBuffer(localVarBody))
 	if err != nil {
 		return localVarHTTPResponse, err
 	}
@@ -220,6 +222,7 @@ func (a *ProjectsApiService) CreateLinkByProjectIdExecute(r ApiCreateLinkByProje
 
 	localVarBody, err := _ioutil.ReadAll(localVarHTTPResponse.Body)
 	localVarHTTPResponse.Body.Close()
+	localVarHTTPResponse.Body = _ioutil.NopCloser(bytes.NewBuffer(localVarBody))
 	if err != nil {
 		return localVarReturnValue, localVarHTTPResponse, err
 	}
@@ -252,11 +255,16 @@ func (a *ProjectsApiService) CreateLinkByProjectIdExecute(r ApiCreateLinkByProje
 }
 
 type ApiCreateProjectRequest struct {
-	ctx             _context.Context
-	ApiService      *ProjectsApiService
-	projectCreation *ProjectCreation
+	ctx                 _context.Context
+	ApiService          *ProjectsApiService
+	withUserCredentials *int32
+	projectCreation     *ProjectCreation
 }
 
+func (r ApiCreateProjectRequest) WithUserCredentials(withUserCredentials int32) ApiCreateProjectRequest {
+	r.withUserCredentials = &withUserCredentials
+	return r
+}
 func (r ApiCreateProjectRequest) ProjectCreation(projectCreation ProjectCreation) ApiCreateProjectRequest {
 	r.projectCreation = &projectCreation
 	return r
@@ -302,7 +310,11 @@ func (a *ProjectsApiService) CreateProjectExecute(r ApiCreateProjectRequest) (Pr
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := _neturl.Values{}
 	localVarFormParams := _neturl.Values{}
+	if r.withUserCredentials == nil {
+		return localVarReturnValue, nil, reportError("withUserCredentials is required and must be specified")
+	}
 
+	localVarQueryParams.Add("withUserCredentials", parameterToString(*r.withUserCredentials, ""))
 	// to determine the Content-Type header
 	localVarHTTPContentTypes := []string{"application/json"}
 
@@ -334,6 +346,7 @@ func (a *ProjectsApiService) CreateProjectExecute(r ApiCreateProjectRequest) (Pr
 
 	localVarBody, err := _ioutil.ReadAll(localVarHTTPResponse.Body)
 	localVarHTTPResponse.Body.Close()
+	localVarHTTPResponse.Body = _ioutil.NopCloser(bytes.NewBuffer(localVarBody))
 	if err != nil {
 		return localVarReturnValue, localVarHTTPResponse, err
 	}
@@ -462,6 +475,7 @@ func (a *ProjectsApiService) CreateProjectEnvironmentVariableExecute(r ApiCreate
 
 	localVarBody, err := _ioutil.ReadAll(localVarHTTPResponse.Body)
 	localVarHTTPResponse.Body.Close()
+	localVarHTTPResponse.Body = _ioutil.NopCloser(bytes.NewBuffer(localVarBody))
 	if err != nil {
 		return localVarReturnValue, localVarHTTPResponse, err
 	}
@@ -584,6 +598,7 @@ func (a *ProjectsApiService) DeleteEnvironmentVariableExecute(r ApiDeleteEnviron
 
 	localVarBody, err := _ioutil.ReadAll(localVarHTTPResponse.Body)
 	localVarHTTPResponse.Body.Close()
+	localVarHTTPResponse.Body = _ioutil.NopCloser(bytes.NewBuffer(localVarBody))
 	if err != nil {
 		return localVarHTTPResponse, err
 	}
@@ -685,6 +700,7 @@ func (a *ProjectsApiService) GetProjectByIdExecute(r ApiGetProjectByIdRequest) (
 
 	localVarBody, err := _ioutil.ReadAll(localVarHTTPResponse.Body)
 	localVarHTTPResponse.Body.Close()
+	localVarHTTPResponse.Body = _ioutil.NopCloser(bytes.NewBuffer(localVarBody))
 	if err != nil {
 		return localVarReturnValue, localVarHTTPResponse, err
 	}
@@ -795,6 +811,7 @@ func (a *ProjectsApiService) GetProjectEnvironmentVariablesExecute(r ApiGetProje
 
 	localVarBody, err := _ioutil.ReadAll(localVarHTTPResponse.Body)
 	localVarHTTPResponse.Body.Close()
+	localVarHTTPResponse.Body = _ioutil.NopCloser(bytes.NewBuffer(localVarBody))
 	if err != nil {
 		return localVarReturnValue, localVarHTTPResponse, err
 	}
@@ -901,6 +918,7 @@ func (a *ProjectsApiService) GetProjectsExecute(r ApiGetProjectsRequest) (Inline
 
 	localVarBody, err := _ioutil.ReadAll(localVarHTTPResponse.Body)
 	localVarHTTPResponse.Body.Close()
+	localVarHTTPResponse.Body = _ioutil.NopCloser(bytes.NewBuffer(localVarBody))
 	if err != nil {
 		return localVarReturnValue, localVarHTTPResponse, err
 	}
@@ -1019,6 +1037,7 @@ func (a *ProjectsApiService) RemoveAliasFromProjectExecute(r ApiRemoveAliasFromP
 
 	localVarBody, err := _ioutil.ReadAll(localVarHTTPResponse.Body)
 	localVarHTTPResponse.Body.Close()
+	localVarHTTPResponse.Body = _ioutil.NopCloser(bytes.NewBuffer(localVarBody))
 	if err != nil {
 		return localVarHTTPResponse, err
 	}
@@ -1120,6 +1139,7 @@ func (a *ProjectsApiService) RemoveLinkByProjectIdExecute(r ApiRemoveLinkByProje
 
 	localVarBody, err := _ioutil.ReadAll(localVarHTTPResponse.Body)
 	localVarHTTPResponse.Body.Close()
+	localVarHTTPResponse.Body = _ioutil.NopCloser(bytes.NewBuffer(localVarBody))
 	if err != nil {
 		return localVarReturnValue, localVarHTTPResponse, err
 	}
@@ -1228,6 +1248,7 @@ func (a *ProjectsApiService) RemoveProjectByIdExecute(r ApiRemoveProjectByIdRequ
 
 	localVarBody, err := _ioutil.ReadAll(localVarHTTPResponse.Body)
 	localVarHTTPResponse.Body.Close()
+	localVarHTTPResponse.Body = _ioutil.NopCloser(bytes.NewBuffer(localVarBody))
 	if err != nil {
 		return localVarHTTPResponse, err
 	}
