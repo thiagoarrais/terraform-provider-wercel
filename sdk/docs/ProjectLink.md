@@ -5,11 +5,13 @@
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **Type** | **string** |  | 
+**Org** | Pointer to **string** |  | [optional] 
 **ProjectId** | Pointer to **string** |  | [optional] 
 **ProjectName** | Pointer to **string** |  | [optional] 
 **ProjectNamespace** | Pointer to **string** |  | [optional] 
 **ProjectUrl** | Pointer to **string** |  | [optional] 
 **ProductionBranch** | Pointer to **string** |  | [optional] 
+**Repo** | Pointer to **string** |  | [optional] 
 **RepoId** | Pointer to **int32** |  | [optional] 
 
 ## Methods
@@ -50,6 +52,31 @@ and a boolean to check if the value has been set.
 
 SetType sets Type field to given value.
 
+
+### GetOrg
+
+`func (o *ProjectLink) GetOrg() string`
+
+GetOrg returns the Org field if non-nil, zero value otherwise.
+
+### GetOrgOk
+
+`func (o *ProjectLink) GetOrgOk() (*string, bool)`
+
+GetOrgOk returns a tuple with the Org field if it's non-nil, zero value otherwise
+and a boolean to check if the value has been set.
+
+### SetOrg
+
+`func (o *ProjectLink) SetOrg(v string)`
+
+SetOrg sets Org field to given value.
+
+### HasOrg
+
+`func (o *ProjectLink) HasOrg() bool`
+
+HasOrg returns a boolean if a field has been set.
 
 ### GetProjectId
 
@@ -175,6 +202,31 @@ SetProductionBranch sets ProductionBranch field to given value.
 `func (o *ProjectLink) HasProductionBranch() bool`
 
 HasProductionBranch returns a boolean if a field has been set.
+
+### GetRepo
+
+`func (o *ProjectLink) GetRepo() string`
+
+GetRepo returns the Repo field if non-nil, zero value otherwise.
+
+### GetRepoOk
+
+`func (o *ProjectLink) GetRepoOk() (*string, bool)`
+
+GetRepoOk returns a tuple with the Repo field if it's non-nil, zero value otherwise
+and a boolean to check if the value has been set.
+
+### SetRepo
+
+`func (o *ProjectLink) SetRepo(v string)`
+
+SetRepo sets Repo field to given value.
+
+### HasRepo
+
+`func (o *ProjectLink) HasRepo() bool`
+
+HasRepo returns a boolean if a field has been set.
 
 ### GetRepoId
 

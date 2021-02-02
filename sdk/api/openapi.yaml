@@ -204,6 +204,15 @@ paths:
         schema:
           type: string
         style: simple
+      - explode: true
+        in: query
+        name: withUserCredentials
+        required: true
+        schema:
+          enum:
+          - 1
+          type: integer
+        style: form
       requestBody:
         content:
           application/json:
@@ -455,8 +464,10 @@ components:
         link:
           repoId: 0
           projectUrl: projectUrl
+          org: org
           productionBranch: productionBranch
           projectNamespace: projectNamespace
+          repo: repo
           type: type
           projectName: projectName
           projectId: projectId
@@ -679,8 +690,10 @@ components:
           link:
             repoId: 0
             projectUrl: projectUrl
+            org: org
             productionBranch: productionBranch
             projectNamespace: projectNamespace
+            repo: repo
             type: type
             projectName: projectName
             projectId: projectId
@@ -692,8 +705,10 @@ components:
           link:
             repoId: 0
             projectUrl: projectUrl
+            org: org
             productionBranch: productionBranch
             projectNamespace: projectNamespace
+            repo: repo
             type: type
             projectName: projectName
             projectId: projectId
@@ -759,13 +774,17 @@ components:
       example:
         repoId: 0
         projectUrl: projectUrl
+        org: org
         productionBranch: productionBranch
         projectNamespace: projectNamespace
+        repo: repo
         type: type
         projectName: projectName
         projectId: projectId
       properties:
         type:
+          type: string
+        org:
           type: string
         projectId:
           type: string
@@ -776,6 +795,8 @@ components:
         projectUrl:
           type: string
         productionBranch:
+          type: string
+        repo:
           type: string
         repoId:
           type: integer

@@ -136,12 +136,17 @@ func (a *ProjectsApiService) AddAliasToProjectExecute(r ApiAddAliasToProjectRequ
 }
 
 type ApiCreateLinkByProjectIdRequest struct {
-	ctx               _context.Context
-	ApiService        *ProjectsApiService
-	id                string
-	gitRepositoryLink *GitRepositoryLink
+	ctx                 _context.Context
+	ApiService          *ProjectsApiService
+	id                  string
+	withUserCredentials *int32
+	gitRepositoryLink   *GitRepositoryLink
 }
 
+func (r ApiCreateLinkByProjectIdRequest) WithUserCredentials(withUserCredentials int32) ApiCreateLinkByProjectIdRequest {
+	r.withUserCredentials = &withUserCredentials
+	return r
+}
 func (r ApiCreateLinkByProjectIdRequest) GitRepositoryLink(gitRepositoryLink GitRepositoryLink) ApiCreateLinkByProjectIdRequest {
 	r.gitRepositoryLink = &gitRepositoryLink
 	return r
@@ -190,7 +195,11 @@ func (a *ProjectsApiService) CreateLinkByProjectIdExecute(r ApiCreateLinkByProje
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := _neturl.Values{}
 	localVarFormParams := _neturl.Values{}
+	if r.withUserCredentials == nil {
+		return localVarReturnValue, nil, reportError("withUserCredentials is required and must be specified")
+	}
 
+	localVarQueryParams.Add("withUserCredentials", parameterToString(*r.withUserCredentials, ""))
 	// to determine the Content-Type header
 	localVarHTTPContentTypes := []string{"application/json"}
 

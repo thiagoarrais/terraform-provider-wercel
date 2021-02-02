@@ -167,6 +167,13 @@ paths:
           required: true
           schema:
             type: string
+        - name: withUserCredentials
+          in: query
+          required: true
+          schema:
+            type: integer
+            enum:
+              - 1
       requestBody:
         content:
           application/json:
@@ -388,6 +395,8 @@ components:
           properties:
             type:
               type: string
+            org:
+              type: string
             projectId:
               type: string
             projectName:
@@ -397,6 +406,8 @@ components:
             projectUrl:
               type: string
             productionBranch:
+              type: string
+            repo:
               type: string
             repoId:
               type: integer

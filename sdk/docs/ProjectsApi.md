@@ -88,7 +88,7 @@ Name | Type | Description  | Notes
 
 ## CreateLinkByProjectId
 
-> Project CreateLinkByProjectId(ctx, id).GitRepositoryLink(gitRepositoryLink).Execute()
+> Project CreateLinkByProjectId(ctx, id).WithUserCredentials(withUserCredentials).GitRepositoryLink(gitRepositoryLink).Execute()
 
 
 
@@ -106,11 +106,12 @@ import (
 
 func main() {
     id := "id_example" // string | 
+    withUserCredentials := int32(56) // int32 | 
     gitRepositoryLink := *openapiclient.NewGitRepositoryLink("Type_example", "Repo_example") // GitRepositoryLink |  (optional)
 
     configuration := openapiclient.NewConfiguration()
     api_client := openapiclient.NewAPIClient(configuration)
-    resp, r, err := api_client.ProjectsApi.CreateLinkByProjectId(context.Background(), id).GitRepositoryLink(gitRepositoryLink).Execute()
+    resp, r, err := api_client.ProjectsApi.CreateLinkByProjectId(context.Background(), id).WithUserCredentials(withUserCredentials).GitRepositoryLink(gitRepositoryLink).Execute()
     if err != nil {
         fmt.Fprintf(os.Stderr, "Error when calling `ProjectsApi.CreateLinkByProjectId``: %v\n", err)
         fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
@@ -136,6 +137,7 @@ Other parameters are passed through a pointer to a apiCreateLinkByProjectIdReque
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
 
+ **withUserCredentials** | **int32** |  | 
  **gitRepositoryLink** | [**GitRepositoryLink**](GitRepositoryLink.md) |  | 
 
 ### Return type

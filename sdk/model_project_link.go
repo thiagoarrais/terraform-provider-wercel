@@ -17,11 +17,13 @@ import (
 // ProjectLink struct for ProjectLink
 type ProjectLink struct {
 	Type             string  `json:"type"`
+	Org              *string `json:"org,omitempty"`
 	ProjectId        *string `json:"projectId,omitempty"`
 	ProjectName      *string `json:"projectName,omitempty"`
 	ProjectNamespace *string `json:"projectNamespace,omitempty"`
 	ProjectUrl       *string `json:"projectUrl,omitempty"`
 	ProductionBranch *string `json:"productionBranch,omitempty"`
+	Repo             *string `json:"repo,omitempty"`
 	RepoId           *int32  `json:"repoId,omitempty"`
 }
 
@@ -65,6 +67,38 @@ func (o *ProjectLink) GetTypeOk() (*string, bool) {
 // SetType sets field value
 func (o *ProjectLink) SetType(v string) {
 	o.Type = v
+}
+
+// GetOrg returns the Org field value if set, zero value otherwise.
+func (o *ProjectLink) GetOrg() string {
+	if o == nil || o.Org == nil {
+		var ret string
+		return ret
+	}
+	return *o.Org
+}
+
+// GetOrgOk returns a tuple with the Org field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+func (o *ProjectLink) GetOrgOk() (*string, bool) {
+	if o == nil || o.Org == nil {
+		return nil, false
+	}
+	return o.Org, true
+}
+
+// HasOrg returns a boolean if a field has been set.
+func (o *ProjectLink) HasOrg() bool {
+	if o != nil && o.Org != nil {
+		return true
+	}
+
+	return false
+}
+
+// SetOrg gets a reference to the given string and assigns it to the Org field.
+func (o *ProjectLink) SetOrg(v string) {
+	o.Org = &v
 }
 
 // GetProjectId returns the ProjectId field value if set, zero value otherwise.
@@ -227,6 +261,38 @@ func (o *ProjectLink) SetProductionBranch(v string) {
 	o.ProductionBranch = &v
 }
 
+// GetRepo returns the Repo field value if set, zero value otherwise.
+func (o *ProjectLink) GetRepo() string {
+	if o == nil || o.Repo == nil {
+		var ret string
+		return ret
+	}
+	return *o.Repo
+}
+
+// GetRepoOk returns a tuple with the Repo field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+func (o *ProjectLink) GetRepoOk() (*string, bool) {
+	if o == nil || o.Repo == nil {
+		return nil, false
+	}
+	return o.Repo, true
+}
+
+// HasRepo returns a boolean if a field has been set.
+func (o *ProjectLink) HasRepo() bool {
+	if o != nil && o.Repo != nil {
+		return true
+	}
+
+	return false
+}
+
+// SetRepo gets a reference to the given string and assigns it to the Repo field.
+func (o *ProjectLink) SetRepo(v string) {
+	o.Repo = &v
+}
+
 // GetRepoId returns the RepoId field value if set, zero value otherwise.
 func (o *ProjectLink) GetRepoId() int32 {
 	if o == nil || o.RepoId == nil {
@@ -264,6 +330,9 @@ func (o ProjectLink) MarshalJSON() ([]byte, error) {
 	if true {
 		toSerialize["type"] = o.Type
 	}
+	if o.Org != nil {
+		toSerialize["org"] = o.Org
+	}
 	if o.ProjectId != nil {
 		toSerialize["projectId"] = o.ProjectId
 	}
@@ -278,6 +347,9 @@ func (o ProjectLink) MarshalJSON() ([]byte, error) {
 	}
 	if o.ProductionBranch != nil {
 		toSerialize["productionBranch"] = o.ProductionBranch
+	}
+	if o.Repo != nil {
+		toSerialize["repo"] = o.Repo
 	}
 	if o.RepoId != nil {
 		toSerialize["repoId"] = o.RepoId

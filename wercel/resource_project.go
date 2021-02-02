@@ -148,7 +148,7 @@ func resourceProjectRead(ctx context.Context, d *schema.ResourceData, m interfac
 	if link, ok := project.GetLinkOk(); ok {
 		repo := map[string]interface{}{
 			"type":        link.GetType(),
-			"project_url": link.GetProjectUrl(),
+			"project_url": projectURLFromLink(link),
 		}
 		d.Set("repo", []interface{}{repo})
 	}
@@ -189,6 +189,7 @@ func resourceProjectUpdate(ctx context.Context, d *schema.ResourceData, m interf
 		gitlabProjectName := matches[2]
 
 		linkProject, _, err := sdkClient.ProjectsApi.CreateLinkByProjectId(ctx, d.Id()).
+			WithUserCredentials(1).
 			GitRepositoryLink(sdk.GitRepositoryLink{
 				Type: repoType,
 				Repo: fmt.Sprintf("%s/%s", gitlabNamespace, gitlabProjectName),
@@ -269,4 +270,12 @@ func resourceProjectDelete(ctx context.Context, d *schema.ResourceData, m interf
 	d.SetId("")
 
 	return diags
+}
+
+func projectURLFromLink(link *sdk.ProjectLink) string {
+	if link.GetType() == "gitlab" {
+		return link.GetProjectUrl()
+	}
+	return fmt.Sprintf("https://github.com/%s/%s", link.GetOrg(), link.GetRepo())
+
 }
