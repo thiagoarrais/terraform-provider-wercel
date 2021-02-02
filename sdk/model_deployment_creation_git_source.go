@@ -19,6 +19,7 @@ type DeploymentCreationGitSource struct {
 	Type      *string `json:"type,omitempty"`
 	Ref       *string `json:"ref,omitempty"`
 	ProjectId *string `json:"projectId,omitempty"`
+	RepoId    *int32  `json:"repoId,omitempty"`
 }
 
 // NewDeploymentCreationGitSource instantiates a new DeploymentCreationGitSource object
@@ -134,6 +135,38 @@ func (o *DeploymentCreationGitSource) SetProjectId(v string) {
 	o.ProjectId = &v
 }
 
+// GetRepoId returns the RepoId field value if set, zero value otherwise.
+func (o *DeploymentCreationGitSource) GetRepoId() int32 {
+	if o == nil || o.RepoId == nil {
+		var ret int32
+		return ret
+	}
+	return *o.RepoId
+}
+
+// GetRepoIdOk returns a tuple with the RepoId field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+func (o *DeploymentCreationGitSource) GetRepoIdOk() (*int32, bool) {
+	if o == nil || o.RepoId == nil {
+		return nil, false
+	}
+	return o.RepoId, true
+}
+
+// HasRepoId returns a boolean if a field has been set.
+func (o *DeploymentCreationGitSource) HasRepoId() bool {
+	if o != nil && o.RepoId != nil {
+		return true
+	}
+
+	return false
+}
+
+// SetRepoId gets a reference to the given int32 and assigns it to the RepoId field.
+func (o *DeploymentCreationGitSource) SetRepoId(v int32) {
+	o.RepoId = &v
+}
+
 func (o DeploymentCreationGitSource) MarshalJSON() ([]byte, error) {
 	toSerialize := map[string]interface{}{}
 	if o.Type != nil {
@@ -144,6 +177,9 @@ func (o DeploymentCreationGitSource) MarshalJSON() ([]byte, error) {
 	}
 	if o.ProjectId != nil {
 		toSerialize["projectId"] = o.ProjectId
+	}
+	if o.RepoId != nil {
+		toSerialize["repoId"] = o.RepoId
 	}
 	return json.Marshal(toSerialize)
 }

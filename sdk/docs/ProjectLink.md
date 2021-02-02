@@ -10,6 +10,7 @@ Name | Type | Description | Notes
 **ProjectNamespace** | Pointer to **string** |  | [optional] 
 **ProjectUrl** | Pointer to **string** |  | [optional] 
 **ProductionBranch** | Pointer to **string** |  | [optional] 
+**RepoId** | Pointer to **int32** |  | [optional] 
 
 ## Methods
 
@@ -174,6 +175,31 @@ SetProductionBranch sets ProductionBranch field to given value.
 `func (o *ProjectLink) HasProductionBranch() bool`
 
 HasProductionBranch returns a boolean if a field has been set.
+
+### GetRepoId
+
+`func (o *ProjectLink) GetRepoId() int32`
+
+GetRepoId returns the RepoId field if non-nil, zero value otherwise.
+
+### GetRepoIdOk
+
+`func (o *ProjectLink) GetRepoIdOk() (*int32, bool)`
+
+GetRepoIdOk returns a tuple with the RepoId field if it's non-nil, zero value otherwise
+and a boolean to check if the value has been set.
+
+### SetRepoId
+
+`func (o *ProjectLink) SetRepoId(v int32)`
+
+SetRepoId sets RepoId field to given value.
+
+### HasRepoId
+
+`func (o *ProjectLink) HasRepoId() bool`
+
+HasRepoId returns a boolean if a field has been set.
 
 
 [[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)

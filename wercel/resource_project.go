@@ -103,9 +103,13 @@ func resourceProjectCreate(ctx context.Context, d *schema.ResourceData, m interf
 
 	projectLink := project.GetLink()
 	gitSource := sdk.NewDeploymentCreationGitSource()
-	gitSource.SetType("gitlab")
+	gitSource.SetType(repoType)
 	gitSource.SetRef(projectLink.GetProductionBranch())
-	gitSource.SetProjectId(projectLink.GetProjectId())
+	if repoType == "gitlab" {
+		gitSource.SetProjectId(projectLink.GetProjectId())
+	} else {
+		gitSource.SetRepoId(projectLink.GetRepoId())
+	}
 	deploymentCreation := sdk.NewDeploymentCreation(name)
 	deploymentCreation.SetTarget("production")
 	deploymentCreation.SetSource("import")

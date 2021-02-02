@@ -453,6 +453,7 @@ components:
       example:
         name: name
         link:
+          repoId: 0
           projectUrl: projectUrl
           productionBranch: productionBranch
           projectNamespace: projectNamespace
@@ -499,6 +500,7 @@ components:
     DeploymentCreation:
       example:
         gitSource:
+          repoId: 0
           ref: ref
           type: type
           projectId: projectId
@@ -675,6 +677,7 @@ components:
         projects:
         - name: name
           link:
+            repoId: 0
             projectUrl: projectUrl
             productionBranch: productionBranch
             projectNamespace: projectNamespace
@@ -687,6 +690,7 @@ components:
           id: id
         - name: name
           link:
+            repoId: 0
             projectUrl: projectUrl
             productionBranch: productionBranch
             projectNamespace: projectNamespace
@@ -753,6 +757,7 @@ components:
       type: object
     Project_link:
       example:
+        repoId: 0
         projectUrl: projectUrl
         productionBranch: productionBranch
         projectNamespace: projectNamespace
@@ -772,6 +777,8 @@ components:
           type: string
         productionBranch:
           type: string
+        repoId:
+          type: integer
       required:
       - type
       type: object
@@ -786,6 +793,7 @@ components:
       type: object
     DeploymentCreation_gitSource:
       example:
+        repoId: 0
         ref: ref
         type: type
         projectId: projectId
@@ -796,6 +804,8 @@ components:
           type: string
         projectId:
           type: string
+        repoId:
+          type: integer
       type: object
     Secret_value:
       example:

@@ -22,6 +22,7 @@ type ProjectLink struct {
 	ProjectNamespace *string `json:"projectNamespace,omitempty"`
 	ProjectUrl       *string `json:"projectUrl,omitempty"`
 	ProductionBranch *string `json:"productionBranch,omitempty"`
+	RepoId           *int32  `json:"repoId,omitempty"`
 }
 
 // NewProjectLink instantiates a new ProjectLink object
@@ -226,6 +227,38 @@ func (o *ProjectLink) SetProductionBranch(v string) {
 	o.ProductionBranch = &v
 }
 
+// GetRepoId returns the RepoId field value if set, zero value otherwise.
+func (o *ProjectLink) GetRepoId() int32 {
+	if o == nil || o.RepoId == nil {
+		var ret int32
+		return ret
+	}
+	return *o.RepoId
+}
+
+// GetRepoIdOk returns a tuple with the RepoId field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+func (o *ProjectLink) GetRepoIdOk() (*int32, bool) {
+	if o == nil || o.RepoId == nil {
+		return nil, false
+	}
+	return o.RepoId, true
+}
+
+// HasRepoId returns a boolean if a field has been set.
+func (o *ProjectLink) HasRepoId() bool {
+	if o != nil && o.RepoId != nil {
+		return true
+	}
+
+	return false
+}
+
+// SetRepoId gets a reference to the given int32 and assigns it to the RepoId field.
+func (o *ProjectLink) SetRepoId(v int32) {
+	o.RepoId = &v
+}
+
 func (o ProjectLink) MarshalJSON() ([]byte, error) {
 	toSerialize := map[string]interface{}{}
 	if true {
@@ -245,6 +278,9 @@ func (o ProjectLink) MarshalJSON() ([]byte, error) {
 	}
 	if o.ProductionBranch != nil {
 		toSerialize["productionBranch"] = o.ProductionBranch
+	}
+	if o.RepoId != nil {
+		toSerialize["repoId"] = o.RepoId
 	}
 	return json.Marshal(toSerialize)
 }

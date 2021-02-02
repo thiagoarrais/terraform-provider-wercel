@@ -398,6 +398,8 @@ components:
               type: string
             productionBranch:
               type: string
+            repoId:
+              type: integer
         alias:
           type: array
           items:
@@ -439,6 +441,8 @@ components:
               type: string
             projectId:
               type: string
+            repoId:
+              type: integer
     GitRepositoryLink:
       required:
         - type
