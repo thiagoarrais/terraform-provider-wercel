@@ -22,7 +22,7 @@ func TestAccWercelProject_basic(t *testing.T) {
 		CheckDestroy: testAccCheckWercelDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccWercelProject(rName),
+				Config: testAccWercelGitlabProject(rName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckWercelProjectExists("wercel_project.myproject", &project),
 					testAccCheckEquals("Unexpected project name", func() interface{} { return project.GetName() }, rName),
@@ -38,7 +38,7 @@ func TestAccWercelProject_basic(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccWercelProject_withoutDomains(rName),
+				Config: testAccWercelGitHubProject_withoutDomains(rName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckWercelProjectExists("wercel_project.myproject", &project),
 					testAccCheckEquals("Unexpected alias size", func() interface{} { return len(project.GetAlias()) }, 1),
@@ -49,7 +49,7 @@ func TestAccWercelProject_basic(t *testing.T) {
 	})
 }
 
-func testAccWercelProject(name string) string {
+func testAccWercelGitlabProject(name string) string {
 	return fmt.Sprintf(`
 provider "wercel" {
   token = "%s"
@@ -65,7 +65,7 @@ resource "wercel_project" "myproject" {
 }`, os.Getenv("VERCEL_TOKEN"), name, name)
 }
 
-func testAccWercelProject_withoutDomains(name string) string {
+func testAccWercelGitHubProject_withoutDomains(name string) string {
 	return fmt.Sprintf(`
 provider "wercel" {
   token = "%s"
@@ -74,8 +74,8 @@ provider "wercel" {
 resource "wercel_project" "myproject" {
   name = "%s"
   repo {
-    type        = "gitlab"
-    project_url = "https://gitlab.com/arrais-tfvercel/hello-world"
+    type        = "github"
+    project_url = "https://github.com/thiagoarrais/tfvercel"
   }
 }`, os.Getenv("VERCEL_TOKEN"), name)
 }

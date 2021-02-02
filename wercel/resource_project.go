@@ -105,11 +105,8 @@ func resourceProjectCreate(ctx context.Context, d *schema.ResourceData, m interf
 	gitSource := sdk.NewDeploymentCreationGitSource()
 	gitSource.SetType(repoType)
 	gitSource.SetRef(projectLink.GetProductionBranch())
-	if repoType == "gitlab" {
-		gitSource.SetProjectId(projectLink.GetProjectId())
-	} else {
-		gitSource.SetRepoId(projectLink.GetRepoId())
-	}
+	gitSource.ProjectId = projectLink.ProjectId
+	gitSource.RepoId = projectLink.RepoId
 	deploymentCreation := sdk.NewDeploymentCreation(name)
 	deploymentCreation.SetTarget("production")
 	deploymentCreation.SetSource("import")
@@ -182,6 +179,7 @@ func resourceProjectUpdate(ctx context.Context, d *schema.ResourceData, m interf
 			return diagFromSDKErr(err)
 		}
 
+		repoType := d.Get("repo").([]interface{})[0].(map[string]interface{})["type"].(string)
 		projectURL := d.Get("repo").([]interface{})[0].(map[string]interface{})["project_url"].(string)
 
 		// TODO: what about gitlab subgroups?
@@ -192,7 +190,7 @@ func resourceProjectUpdate(ctx context.Context, d *schema.ResourceData, m interf
 
 		linkProject, _, err := sdkClient.ProjectsApi.CreateLinkByProjectId(ctx, d.Id()).
 			GitRepositoryLink(sdk.GitRepositoryLink{
-				Type: "gitlab",
+				Type: repoType,
 				Repo: fmt.Sprintf("%s/%s", gitlabNamespace, gitlabProjectName),
 			}).Execute()
 		if err != nil {
@@ -200,13 +198,13 @@ func resourceProjectUpdate(ctx context.Context, d *schema.ResourceData, m interf
 		}
 
 		gitSource := linkProject.GetLink()
-		gitSourceProjectID := gitSource.GetProjectId()
 		gitSourceProductionBranch := gitSource.GetProductionBranch()
 		name := d.Get("name").(string)
 		gitRepositoryLink := sdk.NewDeploymentCreationGitSource()
-		gitRepositoryLink.SetType("gitlab")
+		gitRepositoryLink.SetType(repoType)
 		gitRepositoryLink.SetRef(gitSourceProductionBranch)
-		gitRepositoryLink.SetProjectId(gitSourceProjectID)
+		gitRepositoryLink.ProjectId = gitSource.ProjectId
+		gitRepositoryLink.RepoId = gitSource.RepoId
 		deploymentCreation := sdk.NewDeploymentCreation(name)
 		deploymentCreation.SetTarget("production")
 		deploymentCreation.SetSource("import")
