@@ -42,7 +42,42 @@ func TestAccWercelProject_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckWercelProjectExists("wercel_project.myproject", &project),
 					testAccCheckEquals("Unexpected alias size", func() interface{} { return len(project.GetAlias()) }, 1),
+					resource.TestCheckResourceAttr("wercel_project.myproject", "repo.0.type", "github"),
+					resource.TestCheckResourceAttr("wercel_project.myproject", "repo.0.project_url", "https://github.com/thiagoarrais/tfvercel"),
 					resource.TestCheckResourceAttr("wercel_project.myproject", "domains.#", "0"),
+				),
+			},
+		},
+	})
+}
+
+func TestAccWercelProject_fromGitHubToGitlab(t *testing.T) {
+	var project sdk.Project
+	rName := acctest.RandStringFromCharSet(10, acctest.CharSetAlphaNum)
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckWercelDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccWercelGitHubProject(rName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckWercelProjectExists("wercel_project.myproject", &project),
+					testAccCheckEquals("Unexpected link type", func() interface{} { return project.Link.GetType() }, "github"),
+					testAccCheckEquals("Unexpected link org", func() interface{} { return project.Link.GetOrg() }, "thiagoarrais"),
+					testAccCheckEquals("Unexpected link repo", func() interface{} { return project.Link.GetRepo() }, "tfvercel"),
+					resource.TestCheckResourceAttr("wercel_project.myproject", "name", rName),
+					resource.TestCheckResourceAttr("wercel_project.myproject", "repo.0.type", "github"),
+					resource.TestCheckResourceAttr("wercel_project.myproject", "repo.0.project_url", "https://github.com/thiagoarrais/tfvercel"),
+				),
+			},
+			{
+				Config: testAccWercelGitlabProject(rName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckWercelProjectExists("wercel_project.myproject", &project),
+					resource.TestCheckResourceAttr("wercel_project.myproject", "repo.0.type", "gitlab"),
+					resource.TestCheckResourceAttr("wercel_project.myproject", "repo.0.project_url", "https://gitlab.com/arrais-tfvercel/hello-world"),
 				),
 			},
 		},
@@ -60,6 +95,22 @@ resource "wercel_project" "myproject" {
   repo {
     type        = "gitlab"
     project_url = "https://gitlab.com/arrais-tfvercel/hello-world"
+  }
+  domains = [ "%s-extradomain.vercel.app" ]
+}`, os.Getenv("VERCEL_TOKEN"), name, name)
+}
+
+func testAccWercelGitHubProject(name string) string {
+	return fmt.Sprintf(`
+provider "wercel" {
+  token = "%s"
+}
+
+resource "wercel_project" "myproject" {
+  name = "%s"
+  repo {
+    type        = "github"
+    project_url = "https://github.com/thiagoarrais/tfvercel"
   }
   domains = [ "%s-extradomain.vercel.app" ]
 }`, os.Getenv("VERCEL_TOKEN"), name, name)
