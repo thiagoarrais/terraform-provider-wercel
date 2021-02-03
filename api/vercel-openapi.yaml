@@ -46,6 +46,30 @@ paths:
                 $ref: "#/components/schemas/Project"
         default:
           $ref: "#/components/responses/Error"
+    patch:
+      operationId: updateProject
+      tags:
+        - Projects
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProjectPatch"
+      responses:
+        '200':
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Project"
+        default:
+          $ref: "#/components/responses/Error"
     delete:
       operationId: removeProjectById
       tags:
@@ -420,6 +444,8 @@ components:
                 type: string
             required:
               - domain
+        rootDirectory:
+          type: string
     ProjectCreation:
       required:
         - name
@@ -431,6 +457,22 @@ components:
           $ref: "#/components/schema/GitRepositoryLink"
         rootDirectory:
           type: string
+    ProjectPatch:
+      type: object
+      # rootDirectory is required + nullable in order to trick the openapi code generator
+      # to emit the property even when explicitly set to nil
+      # this won't be usable once we start patching properties other than rootDirectory
+      # because it'll emit a patch unseting anything that isn't explicitly set.
+      # when that hits maybe we'll need required to be false, nullable to be true and the
+      # code generator will need to be fixed
+      required:
+        - rootDirectory
+      properties:
+        name:
+          type: string
+        rootDirectory:
+          type: string
+          nullable: true
     DeploymentCreation:
       required:
         - name

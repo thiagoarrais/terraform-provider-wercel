@@ -164,6 +164,10 @@ func resourceProjectRead(ctx context.Context, d *schema.ResourceData, m interfac
 		d.Set("domains", domains)
 	}
 
+	if rootDirectory, ok := project.GetRootDirectoryOk(); ok {
+		d.Set("root", rootDirectory)
+	}
+
 	d.SetId(project.GetId())
 
 	return diags
@@ -221,6 +225,24 @@ func resourceProjectUpdate(ctx context.Context, d *schema.ResourceData, m interf
 	if d.HasChange("domains") {
 		old, new := d.GetChange("domains")
 		err := syncDomains(ctx, d.Id(), sdkClient, old, new)
+		if err != nil {
+			return diagFromSDKErr(err)
+		}
+	}
+
+	if d.HasChange("root") {
+		root := d.Get("root").(string)
+
+		var rootDirectory sdk.NullableString
+		if root != "" {
+			rootDirectory.Set(&root)
+		}
+
+		_, _, err := sdkClient.ProjectsApi.UpdateProject(ctx, d.Id()).
+			ProjectPatch(sdk.ProjectPatch{
+				RootDirectory: rootDirectory,
+			}).
+			Execute()
 		if err != nil {
 			return diagFromSDKErr(err)
 		}

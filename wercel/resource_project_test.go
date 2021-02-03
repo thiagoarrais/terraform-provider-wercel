@@ -84,6 +84,51 @@ func TestAccWercelProject_fromGitHubToGitlab(t *testing.T) {
 	})
 }
 
+func TestAccWercelProject_withRootDirectory(t *testing.T) {
+	var project sdk.Project
+	rName := acctest.RandStringFromCharSet(10, acctest.CharSetAlphaNum)
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckWercelDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccWercelGitHubProjectDirectoryA(rName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckWercelProjectExists("wercel_project.myproject", &project),
+					testAccCheckEquals("Unexpected link type", func() interface{} { return project.Link.GetType() }, "github"),
+					testAccCheckEquals("Unexpected link org", func() interface{} { return project.Link.GetOrg() }, "thiagoarrais"),
+					testAccCheckEquals("Unexpected link repo", func() interface{} { return project.Link.GetRepo() }, "tfvercel"),
+					testAccCheckEquals("Unexpected root directory", func() interface{} { return project.HasRootDirectory() }, true),
+					testAccCheckEquals("Unexpected root directory", func() interface{} { return project.GetRootDirectory() }, "experiment-a"),
+					resource.TestCheckResourceAttr("wercel_project.myproject", "name", rName),
+					resource.TestCheckResourceAttr("wercel_project.myproject", "repo.0.type", "github"),
+					resource.TestCheckResourceAttr("wercel_project.myproject", "repo.0.project_url", "https://github.com/thiagoarrais/tfvercel"),
+					resource.TestCheckResourceAttr("wercel_project.myproject", "root", "experiment-a"),
+				),
+			},
+			{
+				Config: testAccWercelGitHubProjectDirectoryB(rName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckWercelProjectExists("wercel_project.myproject", &project),
+					testAccCheckEquals("Unexpected root directory", func() interface{} { return project.HasRootDirectory() }, true),
+					testAccCheckEquals("Unexpected root directory", func() interface{} { return project.GetRootDirectory() }, "experiment-b"),
+					resource.TestCheckResourceAttr("wercel_project.myproject", "root", "experiment-b"),
+				),
+			},
+			{
+				Config: testAccWercelGitHubProject(rName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckWercelProjectExists("wercel_project.myproject", &project),
+					testAccCheckEquals("Unexpected root directory", func() interface{} { return project.HasRootDirectory() }, false),
+					resource.TestCheckResourceAttr("wercel_project.myproject", "root", ""),
+				),
+			},
+		},
+	})
+}
+
 func testAccWercelGitlabProject(name string) string {
 	return fmt.Sprintf(`
 provider "wercel" {
@@ -128,6 +173,38 @@ resource "wercel_project" "myproject" {
     type        = "github"
     project_url = "https://github.com/thiagoarrais/tfvercel"
   }
+}`, os.Getenv("VERCEL_TOKEN"), name)
+}
+
+func testAccWercelGitHubProjectDirectoryA(name string) string {
+	return fmt.Sprintf(`
+provider "wercel" {
+  token = "%s"
+}
+
+resource "wercel_project" "myproject" {
+  name = "%s"
+  repo {
+    type        = "github"
+    project_url = "https://github.com/thiagoarrais/tfvercel"
+  }
+  root = "experiment-a"
+}`, os.Getenv("VERCEL_TOKEN"), name)
+}
+
+func testAccWercelGitHubProjectDirectoryB(name string) string {
+	return fmt.Sprintf(`
+provider "wercel" {
+  token = "%s"
+}
+
+resource "wercel_project" "myproject" {
+  name = "%s"
+  repo {
+    type        = "github"
+    project_url = "https://github.com/thiagoarrais/tfvercel"
+  }
+  root = "experiment-b"
 }`, os.Getenv("VERCEL_TOKEN"), name)
 }
 

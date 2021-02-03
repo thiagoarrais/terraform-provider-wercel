@@ -90,6 +90,7 @@ Class | Method | HTTP request | Description
 *ProjectsApi* | [**RemoveAliasFromProject**](docs/ProjectsApi.md#removealiasfromproject) | **Delete** /v1/projects/{projectId}/alias | 
 *ProjectsApi* | [**RemoveLinkByProjectId**](docs/ProjectsApi.md#removelinkbyprojectid) | **Delete** /v4/projects/{id}/link | 
 *ProjectsApi* | [**RemoveProjectById**](docs/ProjectsApi.md#removeprojectbyid) | **Delete** /v1/projects/{id} | 
+*ProjectsApi* | [**UpdateProject**](docs/ProjectsApi.md#updateproject) | **Patch** /v1/projects/{id} | 
 *SecretsApi* | [**CreateNewSecret**](docs/SecretsApi.md#createnewsecret) | **Post** /v2/now/secrets | 
 *SecretsApi* | [**GetSecret**](docs/SecretsApi.md#getsecret) | **Get** /v3/now/secrets/{nameOrId} | 
 *SecretsApi* | [**ListSecrets**](docs/SecretsApi.md#listsecrets) | **Get** /v3/now/secrets | 
@@ -114,6 +115,7 @@ Class | Method | HTTP request | Description
  - [ProjectAlias](docs/ProjectAlias.md)
  - [ProjectCreation](docs/ProjectCreation.md)
  - [ProjectLink](docs/ProjectLink.md)
+ - [ProjectPatch](docs/ProjectPatch.md)
  - [Secret](docs/Secret.md)
  - [SecretCreation](docs/SecretCreation.md)
  - [SecretValue](docs/SecretValue.md)

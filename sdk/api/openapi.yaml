@@ -74,6 +74,36 @@ paths:
           description: Unexpected error
       tags:
       - Projects
+    patch:
+      operationId: updateProject
+      parameters:
+      - explode: false
+        in: path
+        name: id
+        required: true
+        schema:
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProjectPatch'
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Project'
+          description: Success
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Unexpected error
+      tags:
+      - Projects
   /v1/projects/{projectId}/alias:
     delete:
       operationId: removeAliasFromProject
@@ -474,6 +504,7 @@ components:
         alias:
         - domain: domain
         - domain: domain
+        rootDirectory: rootDirectory
         id: id
       properties:
         id:
@@ -486,6 +517,8 @@ components:
           items:
             $ref: '#/components/schemas/Project_alias'
           type: array
+        rootDirectory:
+          type: string
       required:
       - id
       - name
@@ -507,6 +540,19 @@ components:
           type: string
       required:
       - name
+      type: object
+    ProjectPatch:
+      example:
+        name: name
+        rootDirectory: rootDirectory
+      properties:
+        name:
+          type: string
+        rootDirectory:
+          nullable: true
+          type: string
+      required:
+      - rootDirectory
       type: object
     DeploymentCreation:
       example:
@@ -700,6 +746,7 @@ components:
           alias:
           - domain: domain
           - domain: domain
+          rootDirectory: rootDirectory
           id: id
         - name: name
           link:
@@ -715,6 +762,7 @@ components:
           alias:
           - domain: domain
           - domain: domain
+          rootDirectory: rootDirectory
           id: id
       properties:
         projects:

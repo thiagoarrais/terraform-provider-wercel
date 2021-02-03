@@ -16,10 +16,11 @@ import (
 
 // Project struct for Project
 type Project struct {
-	Id    string          `json:"id"`
-	Name  string          `json:"name"`
-	Link  *ProjectLink    `json:"link,omitempty"`
-	Alias *[]ProjectAlias `json:"alias,omitempty"`
+	Id            string          `json:"id"`
+	Name          string          `json:"name"`
+	Link          *ProjectLink    `json:"link,omitempty"`
+	Alias         *[]ProjectAlias `json:"alias,omitempty"`
+	RootDirectory *string         `json:"rootDirectory,omitempty"`
 }
 
 // NewProject instantiates a new Project object
@@ -153,6 +154,38 @@ func (o *Project) SetAlias(v []ProjectAlias) {
 	o.Alias = &v
 }
 
+// GetRootDirectory returns the RootDirectory field value if set, zero value otherwise.
+func (o *Project) GetRootDirectory() string {
+	if o == nil || o.RootDirectory == nil {
+		var ret string
+		return ret
+	}
+	return *o.RootDirectory
+}
+
+// GetRootDirectoryOk returns a tuple with the RootDirectory field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+func (o *Project) GetRootDirectoryOk() (*string, bool) {
+	if o == nil || o.RootDirectory == nil {
+		return nil, false
+	}
+	return o.RootDirectory, true
+}
+
+// HasRootDirectory returns a boolean if a field has been set.
+func (o *Project) HasRootDirectory() bool {
+	if o != nil && o.RootDirectory != nil {
+		return true
+	}
+
+	return false
+}
+
+// SetRootDirectory gets a reference to the given string and assigns it to the RootDirectory field.
+func (o *Project) SetRootDirectory(v string) {
+	o.RootDirectory = &v
+}
+
 func (o Project) MarshalJSON() ([]byte, error) {
 	toSerialize := map[string]interface{}{}
 	if true {
@@ -166,6 +199,9 @@ func (o Project) MarshalJSON() ([]byte, error) {
 	}
 	if o.Alias != nil {
 		toSerialize["alias"] = o.Alias
+	}
+	if o.RootDirectory != nil {
+		toSerialize["rootDirectory"] = o.RootDirectory
 	}
 	return json.Marshal(toSerialize)
 }

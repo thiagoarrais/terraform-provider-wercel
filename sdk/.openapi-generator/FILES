@@ -24,6 +24,7 @@ docs/Project.md
 docs/ProjectAlias.md
 docs/ProjectCreation.md
 docs/ProjectLink.md
+docs/ProjectPatch.md
 docs/ProjectsApi.md
 docs/Secret.md
 docs/SecretCreation.md
@@ -49,6 +50,7 @@ model_project.go
 model_project_alias.go
 model_project_creation.go
 model_project_link.go
+model_project_patch.go
 model_secret.go
 model_secret_creation.go
 model_secret_value.go
