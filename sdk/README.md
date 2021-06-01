@@ -118,6 +118,7 @@ Class | Method | HTTP request | Description
  - [ProjectPatch](docs/ProjectPatch.md)
  - [Secret](docs/Secret.md)
  - [SecretCreation](docs/SecretCreation.md)
+ - [SecretDeletion](docs/SecretDeletion.md)
  - [SecretValue](docs/SecretValue.md)
  - [TargetEnvironment](docs/TargetEnvironment.md)
 

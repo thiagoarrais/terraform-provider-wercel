@@ -204,7 +204,7 @@ Other parameters are passed through a pointer to a apiListSecretsRequest struct 
 
 ## RemoveSecret
 
-> Secret RemoveSecret(ctx, name).Execute()
+> SecretDeletion RemoveSecret(ctx, name).Execute()
 
 
 
@@ -230,7 +230,7 @@ func main() {
         fmt.Fprintf(os.Stderr, "Error when calling `SecretsApi.RemoveSecret``: %v\n", err)
         fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
     }
-    // response from `RemoveSecret`: Secret
+    // response from `RemoveSecret`: SecretDeletion
     fmt.Fprintf(os.Stdout, "Response from `SecretsApi.RemoveSecret`: %v\n", resp)
 }
 ```
@@ -254,7 +254,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**Secret**](Secret.md)
+[**SecretDeletion**](SecretDeletion.md)
 
 ### Authorization
 

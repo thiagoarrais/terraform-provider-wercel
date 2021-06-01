@@ -12,13 +12,14 @@ package sdk
 
 import (
 	"encoding/json"
+	"time"
 )
 
 // Secret struct for Secret
 type Secret struct {
 	Uid     string       `json:"uid"`
 	Name    string       `json:"name"`
-	Created *string      `json:"created,omitempty"`
+	Created *time.Time   `json:"created,omitempty"`
 	UserId  *string      `json:"userId,omitempty"`
 	Value   *SecretValue `json:"value,omitempty"`
 }
@@ -91,9 +92,9 @@ func (o *Secret) SetName(v string) {
 }
 
 // GetCreated returns the Created field value if set, zero value otherwise.
-func (o *Secret) GetCreated() string {
+func (o *Secret) GetCreated() time.Time {
 	if o == nil || o.Created == nil {
-		var ret string
+		var ret time.Time
 		return ret
 	}
 	return *o.Created
@@ -101,7 +102,7 @@ func (o *Secret) GetCreated() string {
 
 // GetCreatedOk returns a tuple with the Created field value if set, nil otherwise
 // and a boolean to check if the value has been set.
-func (o *Secret) GetCreatedOk() (*string, bool) {
+func (o *Secret) GetCreatedOk() (*time.Time, bool) {
 	if o == nil || o.Created == nil {
 		return nil, false
 	}
@@ -117,8 +118,8 @@ func (o *Secret) HasCreated() bool {
 	return false
 }
 
-// SetCreated gets a reference to the given string and assigns it to the Created field.
-func (o *Secret) SetCreated(v string) {
+// SetCreated gets a reference to the given time.Time and assigns it to the Created field.
+func (o *Secret) SetCreated(v time.Time) {
 	o.Created = &v
 }
 

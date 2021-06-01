@@ -6,7 +6,7 @@ Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **Uid** | **string** |  | 
 **Name** | **string** |  | 
-**Created** | Pointer to **string** |  | [optional] 
+**Created** | Pointer to **time.Time** |  | [optional] 
 **UserId** | Pointer to **string** |  | [optional] 
 **Value** | Pointer to [**SecretValue**](Secret_value.md) |  | [optional] 
 
@@ -71,20 +71,20 @@ SetName sets Name field to given value.
 
 ### GetCreated
 
-`func (o *Secret) GetCreated() string`
+`func (o *Secret) GetCreated() time.Time`
 
 GetCreated returns the Created field if non-nil, zero value otherwise.
 
 ### GetCreatedOk
 
-`func (o *Secret) GetCreatedOk() (*string, bool)`
+`func (o *Secret) GetCreatedOk() (*time.Time, bool)`
 
 GetCreatedOk returns a tuple with the Created field if it's non-nil, zero value otherwise
 and a boolean to check if the value has been set.
 
 ### SetCreated
 
-`func (o *Secret) SetCreated(v string)`
+`func (o *Secret) SetCreated(v time.Time)`
 
 SetCreated sets Created field to given value.
 

@@ -28,6 +28,7 @@ docs/ProjectPatch.md
 docs/ProjectsApi.md
 docs/Secret.md
 docs/SecretCreation.md
+docs/SecretDeletion.md
 docs/SecretValue.md
 docs/SecretsApi.md
 docs/TargetEnvironment.md
@@ -53,6 +54,7 @@ model_project_link.go
 model_project_patch.go
 model_secret.go
 model_secret_creation.go
+model_secret_deletion.go
 model_secret_value.go
 model_target_environment.go
 response.go

@@ -413,7 +413,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Secret'
+                $ref: '#/components/schemas/SecretDeletion'
           description: Success
         default:
           content:
@@ -624,7 +624,7 @@ components:
     Secret:
       example:
         uid: uid
-        created: 2000-01-23
+        created: 2000-01-23T04:56:07.000+00:00
         name: name
         userId: userId
         value:
@@ -638,13 +638,31 @@ components:
         name:
           type: string
         created:
-          format: date
+          format: date-time
           type: string
         userId:
           type: string
         value:
           $ref: '#/components/schemas/Secret_value'
       required:
+      - name
+      - uid
+      type: object
+    SecretDeletion:
+      example:
+        uid: uid
+        created: 0
+        name: name
+      properties:
+        uid:
+          type: string
+        name:
+          type: string
+        created:
+          format: int64
+          type: integer
+      required:
+      - created
       - name
       - uid
       type: object
@@ -795,7 +813,7 @@ components:
       example:
         secrets:
         - uid: uid
-          created: 2000-01-23
+          created: 2000-01-23T04:56:07.000+00:00
           name: name
           userId: userId
           value:
@@ -804,7 +822,7 @@ components:
             - 0
             type: type
         - uid: uid
-          created: 2000-01-23
+          created: 2000-01-23T04:56:07.000+00:00
           name: name
           userId: userId
           value:

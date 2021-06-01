@@ -339,7 +339,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Secret"
+                $ref: "#/components/schemas/SecretDeletion"
         default:
           $ref: "#/components/responses/Error"
   /v3/now/secrets:
@@ -538,7 +538,7 @@ components:
           type: string
         created:
           type: string
-          format: date
+          format: date-time
         userId:
           type: string
         value:
@@ -550,6 +550,20 @@ components:
               type: array
               items:
                 type: integer
+    SecretDeletion:
+      required:
+        - uid
+        - name
+        - created
+      type: object
+      properties:
+        uid:
+          type: string
+        name:
+          type: string
+        created:
+          type: integer
+          format: int64
     EnvironmentVariableCreation:
       required:
         - type

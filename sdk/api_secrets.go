@@ -366,7 +366,7 @@ type ApiRemoveSecretRequest struct {
 	name       string
 }
 
-func (r ApiRemoveSecretRequest) Execute() (Secret, *_nethttp.Response, error) {
+func (r ApiRemoveSecretRequest) Execute() (SecretDeletion, *_nethttp.Response, error) {
 	return r.ApiService.RemoveSecretExecute(r)
 }
 
@@ -386,16 +386,16 @@ func (a *SecretsApiService) RemoveSecret(ctx _context.Context, name string) ApiR
 
 /*
  * Execute executes the request
- * @return Secret
+ * @return SecretDeletion
  */
-func (a *SecretsApiService) RemoveSecretExecute(r ApiRemoveSecretRequest) (Secret, *_nethttp.Response, error) {
+func (a *SecretsApiService) RemoveSecretExecute(r ApiRemoveSecretRequest) (SecretDeletion, *_nethttp.Response, error) {
 	var (
 		localVarHTTPMethod   = _nethttp.MethodDelete
 		localVarPostBody     interface{}
 		localVarFormFileName string
 		localVarFileName     string
 		localVarFileBytes    []byte
-		localVarReturnValue  Secret
+		localVarReturnValue  SecretDeletion
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "SecretsApiService.RemoveSecret")
